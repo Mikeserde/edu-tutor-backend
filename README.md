@@ -9,36 +9,33 @@
 
 ### 3.1. 教师表 (Teacher)
 
-| 字段名    | 数据类型     | 主键/外键 | 允许空值 | 默认值 | 说明         | 约束/备注                     |
-| --------- | ------------ | --------- | -------- | ------ | ------------ | ----------------------------- |
-| TeacherId | INT          | 主键      | 否       | 自增   | 教师唯一标识 | 自增主键                      |
-| Name      | VARCHAR(50)  | -         | 否       | -      | 教师姓名     |                               |
-| Gender    | VARCHAR(2)   | -         | 否       | -      | 性别         | CHECK (Gender IN ('男','女')) |
-| Phone     | VARCHAR(20)  | -         | 否       | -      | 联系电话     | 唯一约束                      |
-| Address   | VARCHAR(100) | -         | 是       | -      | 住址         |                               |
+| 字段名    | 数据类型    | 主键/外键 | 允许空值 | 默认值 | 说明         | 约束/备注                       |
+| --------- | ----------- | --------- | -------- | ------ | ------------ | ------------------------------- |
+| TeacherId | INT         | 主键      | 否       | 自增   | 教师唯一标识 | 自增主键                        |
+| Name      | VARCHAR(50) | -         | 否       | -      | 教师姓名     |                                 |
+| Gender    | VARCHAR(2)  | -         | 否       | -      | 性别         | `CHECK (Gender IN ('男','女'))` |
+| Phone     | VARCHAR(20) | -         | 否       | -      | 联系电话     | 唯一约束                        |
 
 ------
 
 ### 3.2. 职业类型表 (OccupationType)
 
-| 字段名           | 数据类型      | 主键/外键 | 允许空值 | 默认值 | 说明                           | 约束/备注 |
-| ---------------- | ------------- | --------- | -------- | ------ | ------------------------------ | --------- |
-| OccupationTypeId | VARCHAR(10)   | 主键      | 否       | -      | 职业类型唯一标识（如`OCC001`） |           |
-| Name             | VARCHAR(50)   | -         | 否       | -      | 职业类型名称（如“数学辅导”）   |           |
-| Description      | VARCHAR(200)  | -         | 是       | -      | 职业类型描述                   |           |
-| HourlyFee        | DECIMAL(10,2) | -         | 否       | -      | 每小时课时费                   | 必须大于0 |
+| 字段名           | 数据类型      | 主键/外键 | 允许空值 | 默认值 | 说明                           | 约束/备注               |
+| ---------------- | ------------- | --------- | -------- | ------ | ------------------------------ | ----------------------- |
+| OccupationTypeId | VARCHAR(10)   | 主键      | 否       | -      | 职业类型唯一标识（如`OCC001`） |                         |
+| Name             | VARCHAR(50)   | -         | 否       | -      | 职业类型名称（如“数学辅导”）   | 唯一约束，不可重复      |
+| HourlyFee        | DECIMAL(10,2) | -         | 否       | -      | 每小时课时费                   | `CHECK (HourlyFee > 0)` |
 
 ------
 
 ### 3.3. 职业登记表 (OccupationRegistration)
 
-| 字段名           | 数据类型     | 主键/外键 | 允许空值 | 默认值 | 说明                              | 约束/备注                |
-| ---------------- | ------------ | --------- | -------- | ------ | --------------------------------- | ------------------------ |
-| OccupationId     | VARCHAR(10)  | 主键      | 否       | -      | 职业登记唯一标识（如`OCCREG001`） |                          |
-| OccupationTypeId | VARCHAR(10)  | 外键      | 否       | -      | 关联的职业类型                    | 外键引用OccupationType表 |
-| Address          | VARCHAR(100) | -         | 否       | -      | 上课地址                          |                          |
-| ContactPhone     | VARCHAR(20)  | -         | 否       | -      | 联系电话                          |                          |
-| Status           | VARCHAR(10)  | -         | 否       | 开放   | 登记状态（开放/关闭）             | ENUM('开放','关闭')      |
+| 字段名           | 数据类型     | 主键/外键 | 允许空值 | 默认值 | 说明                              | 约束/备注                    |
+| ---------------- | ------------ | --------- | -------- | ------ | --------------------------------- | ---------------------------- |
+| OccupationId     | VARCHAR(10)  | 主键      | 否       | -      | 职业登记唯一标识（如`OCCREG001`） |                              |
+| OccupationTypeId | VARCHAR(10)  | 外键      | 否       | -      | 关联的职业类型                    | 外键引用 `OccupationType` 表 |
+| Address          | VARCHAR(100) | -         | 否       | -      | 上课地址                          |                              |
+| ContactPhone     | VARCHAR(20)  | -         | 否       | -      | 联系电话                          |                              |
 
 ------
 
@@ -95,13 +92,7 @@ CREATE TABLE Teacher (
     TeacherId INT PRIMARY KEY AUTO_INCREMENT,
     Name VARCHAR(50) NOT NULL,
     Gender VARCHAR(2) NOT NULL CHECK (Gender IN ('男', '女')),
-    Phone VARCHAR(20) NOT NULL UNIQUE,
-    Address VARCHAR(100),
-    Education VARCHAR(50),
-    Major VARCHAR(100),
-    HourlyRate DECIMAL(10,2) NOT NULL,
-    RegisterDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-    Status TINYINT DEFAULT 1 COMMENT '1-活跃, 0-非活跃'
+    Phone VARCHAR(20) NOT NULL UNIQUE
 );
 ```
 2. 职业类型表 (OccupationType)
@@ -109,10 +100,8 @@ CREATE TABLE Teacher (
 ```mysql
 CREATE TABLE OccupationType (
     OccupationTypeId VARCHAR(10) PRIMARY KEY,
-    Name VARCHAR(50) NOT NULL,
-    Description VARCHAR(200),
-    HourlyFee DECIMAL(10,2) NOT NULL CHECK (HourlyFee > 0),
-    Status TINYINT DEFAULT 1 COMMENT '1-启用, 0-禁用'
+    Name VARCHAR(50) NOT NULL UNIQUE,
+    HourlyFee DECIMAL(10,2) NOT NULL CHECK (HourlyFee > 0)
 );
 ```
 3. 职业登记表 (OccupationRegistration)
@@ -121,12 +110,8 @@ CREATE TABLE OccupationType (
 CREATE TABLE OccupationRegistration (
     OccupationId VARCHAR(10) PRIMARY KEY,
     OccupationTypeId VARCHAR(10) NOT NULL,
-    Name VARCHAR(100) NOT NULL,
     Address VARCHAR(100) NOT NULL,
     ContactPhone VARCHAR(20) NOT NULL,
-    ContactPerson VARCHAR(50) NOT NULL,
-    Status VARCHAR(10) NOT NULL DEFAULT '开放' CHECK (Status IN ('开放', '关闭')),
-    RegisterDate DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (OccupationTypeId) REFERENCES OccupationType(OccupationTypeId)
 );
 ```
