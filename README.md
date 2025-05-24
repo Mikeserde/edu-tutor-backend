@@ -122,12 +122,9 @@ CREATE TABLE OccupationSchedule (
     ScheduleId INT PRIMARY KEY AUTO_INCREMENT,
     OccupationId VARCHAR(10) NOT NULL,
     TeacherId INT NOT NULL,
-    ScheduleDate DATE NOT NULL,
+    Date DATE NOT NULL,
     StartTime TIME NOT NULL,
     EndTime TIME NOT NULL,
-    ActualHours DECIMAL(5,2) COMMENT '实际授课小时数',
-    Status VARCHAR(20) DEFAULT '已安排' CHECK (Status IN ('已安排', '已完成', '已取消')),
-    Remarks VARCHAR(200),
     FOREIGN KEY (OccupationId) REFERENCES OccupationRegistration(OccupationId),
     FOREIGN KEY (TeacherId) REFERENCES Teacher(TeacherId),
     CHECK (EndTime > StartTime)
@@ -140,16 +137,9 @@ CREATE TABLE OccupationSchedule (
 CREATE TABLE Salary (
     SalaryId INT PRIMARY KEY AUTO_INCREMENT,
     TeacherId INT NOT NULL,
-    SalaryMonth CHAR(6) NOT NULL COMMENT '格式:YYYYMM',
     TotalHours DECIMAL(10,2) NOT NULL,
-    BaseSalary DECIMAL(10,2) NOT NULL,
-    Bonus DECIMAL(10,2) DEFAULT 0,
-    Deduction DECIMAL(10,2) DEFAULT 0,
-    Tax DECIMAL(10,2) DEFAULT 0,
-    NetSalary DECIMAL(10,2) NOT NULL,
-    PaymentStatus TINYINT DEFAULT 0 COMMENT '0-未支付, 1-已支付',
     PaymentDate DATETIME,
-    Remarks VARCHAR(200),
+    TotalAmount DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (TeacherId) REFERENCES Teacher(TeacherId)
 );
 ```
@@ -159,13 +149,9 @@ CREATE TABLE Salary (
 CREATE TABLE Payment (
     PaymentId INT PRIMARY KEY AUTO_INCREMENT,
     OccupationId VARCHAR(10) NOT NULL,
-    PaymentNo VARCHAR(20) NOT NULL UNIQUE,
     Amount DECIMAL(10,2) NOT NULL CHECK (Amount > 0),
     PaymentDate DATETIME DEFAULT CURRENT_TIMESTAMP,
     PaymentMethod VARCHAR(20) NOT NULL,
-    InvoiceNo VARCHAR(50),
-    Status VARCHAR(10) NOT NULL DEFAULT '未支付' CHECK (Status IN ('已支付', '未支付', '已退款')),
-    Remarks VARCHAR(200),
     FOREIGN KEY (OccupationId) REFERENCES OccupationRegistration(OccupationId)
 );
 ```
