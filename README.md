@@ -80,11 +80,17 @@
 
 ------
 ## 4. MySQL编写
--- 创建数据库
+- 创建数据库
+
+```mysql
 CREATE DATABASE TutorServiceManagement;
 USE TutorServiceManagement;
+```
+- 建表
 
--- 1. 教师表 (Teacher)
+1. 教师表 (Teacher)
+
+```mysql
 CREATE TABLE Teacher (
     TeacherId INT PRIMARY KEY AUTO_INCREMENT,
     Name VARCHAR(50) NOT NULL,
@@ -97,8 +103,10 @@ CREATE TABLE Teacher (
     RegisterDate DATETIME DEFAULT CURRENT_TIMESTAMP,
     Status TINYINT DEFAULT 1 COMMENT '1-活跃, 0-非活跃'
 );
+```
+2. 职业类型表 (OccupationType)
 
--- 2. 职业类型表 (OccupationType)
+```mysql
 CREATE TABLE OccupationType (
     OccupationTypeId VARCHAR(10) PRIMARY KEY,
     Name VARCHAR(50) NOT NULL,
@@ -106,8 +114,10 @@ CREATE TABLE OccupationType (
     HourlyFee DECIMAL(10,2) NOT NULL CHECK (HourlyFee > 0),
     Status TINYINT DEFAULT 1 COMMENT '1-启用, 0-禁用'
 );
+```
+3. 职业登记表 (OccupationRegistration)
 
--- 3. 职业登记表 (OccupationRegistration)
+```mysql
 CREATE TABLE OccupationRegistration (
     OccupationId VARCHAR(10) PRIMARY KEY,
     OccupationTypeId VARCHAR(10) NOT NULL,
@@ -119,8 +129,10 @@ CREATE TABLE OccupationRegistration (
     RegisterDate DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (OccupationTypeId) REFERENCES OccupationType(OccupationTypeId)
 );
+```
+4. 职业作息表 (OccupationSchedule)
 
--- 4. 职业作息表 (OccupationSchedule)
+```mysql
 CREATE TABLE OccupationSchedule (
     ScheduleId INT PRIMARY KEY AUTO_INCREMENT,
     OccupationId VARCHAR(10) NOT NULL,
@@ -135,8 +147,11 @@ CREATE TABLE OccupationSchedule (
     FOREIGN KEY (TeacherId) REFERENCES Teacher(TeacherId),
     CHECK (EndTime > StartTime)
 );
+```
 
--- 5. 工资表 (Salary)
+5. 工资表 (Salary)
+
+```mysql
 CREATE TABLE Salary (
     SalaryId INT PRIMARY KEY AUTO_INCREMENT,
     TeacherId INT NOT NULL,
@@ -152,8 +167,10 @@ CREATE TABLE Salary (
     Remarks VARCHAR(200),
     FOREIGN KEY (TeacherId) REFERENCES Teacher(TeacherId)
 );
+```
+6. 收费表 (Payment)
 
--- 6. 收费表 (Payment)
+```mysql
 CREATE TABLE Payment (
     PaymentId INT PRIMARY KEY AUTO_INCREMENT,
     OccupationId VARCHAR(10) NOT NULL,
@@ -166,11 +183,13 @@ CREATE TABLE Payment (
     Remarks VARCHAR(200),
     FOREIGN KEY (OccupationId) REFERENCES OccupationRegistration(OccupationId)
 );
-
--- 创建索引提高查询性能
+```
+​	7.创建索引提高查询性能
+```mysql
 CREATE INDEX idx_teacher_phone ON Teacher(Phone);
 CREATE INDEX idx_occupation_type ON OccupationType(Name);
 CREATE INDEX idx_occupation_reg ON OccupationRegistration(OccupationTypeId, Status);
 CREATE INDEX idx_schedule_date ON OccupationSchedule(ScheduleDate, TeacherId);
 CREATE INDEX idx_salary_month ON Salary(SalaryMonth, TeacherId);
 CREATE INDEX idx_payment_date ON Payment(PaymentDate, Status);
+```
