@@ -20,22 +20,22 @@
 
 ### 3.2. 职业类型表 (OccupationType)
 
-| 字段名           | 数据类型      | 主键/外键 | 允许空值 | 默认值 | 说明                           | 约束/备注               |
-| ---------------- | ------------- | --------- | -------- | ------ | ------------------------------ | ----------------------- |
-| OccupationTypeId | VARCHAR(10)   | 主键      | 否       | -      | 职业类型唯一标识（如`OCC001`） |                         |
-| Name             | VARCHAR(50)   | -         | 否       | -      | 职业类型名称（如“数学辅导”）   | 唯一约束，不可重复      |
-| HourlyFee        | DECIMAL(10,2) | -         | 否       | -      | 每小时课时费                   | `CHECK (HourlyFee > 0)` |
+| 字段名           | 数据类型      | 主键/外键 | 允许空值 | 默认值 | 说明                         | 约束/备注               |
+| ---------------- | ------------- | --------- | -------- | ------ | ---------------------------- | ----------------------- |
+| OccupationTypeId | VARCHAR(10)   | 主键      | 否       | -      | 职业类型唯一标识             | 自增主键                |
+| Name             | VARCHAR(50)   | -         | 否       | -      | 职业类型名称（如“数学辅导”） | 唯一约束，不可重复      |
+| HourlyFee        | DECIMAL(10,2) | -         | 否       | -      | 每小时课时费                 | `CHECK (HourlyFee > 0)` |
 
 ------
 
 ### 3.3. 职业登记表 (OccupationRegistration)
 
-| 字段名           | 数据类型     | 主键/外键 | 允许空值 | 默认值 | 说明                              | 约束/备注                    |
-| ---------------- | ------------ | --------- | -------- | ------ | --------------------------------- | ---------------------------- |
-| OccupationId     | VARCHAR(10)  | 主键      | 否       | -      | 职业登记唯一标识（如`OCCREG001`） |                              |
-| OccupationTypeId | VARCHAR(10)  | 外键      | 否       | -      | 关联的职业类型                    | 外键引用 `OccupationType` 表 |
-| Address          | VARCHAR(100) | -         | 否       | -      | 上课地址                          |                              |
-| ContactPhone     | VARCHAR(20)  | -         | 否       | -      | 联系电话                          |                              |
+| 字段名           | 数据类型     | 主键/外键 | 允许空值 | 默认值 | 说明             | 约束/备注                    |
+| ---------------- | ------------ | --------- | -------- | ------ | ---------------- | ---------------------------- |
+| OccupationId     | VARCHAR(10)  | 主键      | 否       | -      | 职业登记唯一标识 | 自增主键                     |
+| OccupationTypeId | VARCHAR(10)  | 外键      | 否       | -      | 关联的职业类型   | 外键引用 `OccupationType` 表 |
+| Address          | VARCHAR(100) | -         | 否       | -      | 上课地址         |                              |
+| ContactPhone     | VARCHAR(20)  | -         | 否       | -      | 联系电话         |                              |
 
 ------
 
@@ -99,7 +99,7 @@ CREATE TABLE Teacher (
 
 ```mysql
 CREATE TABLE OccupationType (
-    OccupationTypeId VARCHAR(10) PRIMARY KEY,
+    OccupationTypeId VARCHAR(10) PRIMARY KEY AUTO_INCREMENT,
     Name VARCHAR(50) NOT NULL UNIQUE,
     HourlyFee DECIMAL(10,2) NOT NULL CHECK (HourlyFee > 0)
 );
@@ -108,7 +108,7 @@ CREATE TABLE OccupationType (
 
 ```mysql
 CREATE TABLE OccupationRegistration (
-    OccupationId VARCHAR(10) PRIMARY KEY,
+    OccupationId VARCHAR(10) PRIMARY KEY AUTO_INCREMENT,
     OccupationTypeId VARCHAR(10) NOT NULL,
     Address VARCHAR(100) NOT NULL,
     ContactPhone VARCHAR(20) NOT NULL,
