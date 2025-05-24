@@ -62,3 +62,110 @@
 6. 创建存储过程统计各种职业的需求次数；
 7. 创建 check 约束限制教师性别必须输入‘男 ’或‘女 ’；
 8. 具有数据备份和数据恢复功能。
+
+数据库表结构：
+1. 教师信息表(Teacher)
+功能：实现教师信息管理
+
+字段：
+
+teacher_id INT PRIMARY KEY IDENTITY(1,1) - 教师ID，主键，自增
+
+name NVARCHAR(50) NOT NULL - 教师姓名
+
+gender CHAR(2) NOT NULL CHECK (gender IN ('男', '女')) - 性别，有CHECK约束
+
+birth_date DATE - 出生日期
+
+phone VARCHAR (20) NOT NULL -电话
+
+
+2. 职业类型表(ProfessionType)
+功能：实现职业类型管理
+
+字段：
+
+type_id INT PRIMARY KEY IDENTITY(1,1) - 类型ID，主键，自增
+
+type_name NVARCHAR(50) NOT NULL - 类型名称
+
+description NVARCHAR(200) - 类型描述
+
+
+
+3. 职业登记表(Profession)
+功能：实现职业登记管理
+
+字段：
+
+profession_id INT PRIMARY KEY IDENTITY(1,1) -  - 职业名称
+职业ID，主键，自增
+
+profession_no VARCHAR(20) NOT NULL UNIQUE - 职业编号，唯一
+
+name NVARCHAR(100) NOT NULL -姓名
+
+type_id INT FOREIGN KEY REFERENCES ProfessionType(type_id) - 职业类型ID，外键
+
+contact_person NVARCHAR(50) NOT NULL - 联系人
+
+phone VARCHAR(20) NOT NULL - 联系电话
+
+place VARCHAR(20) - 地址
+
+4. 职业作息登记表(Schedule)
+功能：实现职业作息登记
+
+字段：
+
+schedule_id INT PRIMARY KEY IDENTITY(1,1) - 作息ID，主键，自增
+
+profession_id INT FOREIGN KEY REFERENCES Profession(profession_id) - 职业ID，外键
+
+teacher_id INT FOREIGN KEY REFERENCES Teacher(teacher_id) - 教师ID，外键
+
+schedule_date DATE NOT NULL - 作息日期
+
+start_time TIME NOT NULL - 开始时间
+
+end_time TIME NOT NULL - 结束时间
+
+
+5. 工资管理表(Salary)
+功能：实现工资管理
+
+字段：
+
+salary_id INT PRIMARY KEY IDENTITY(1,1) - 工资ID，主键，自增
+
+teacher_id INT FOREIGN KEY REFERENCES Teacher(teacher_id) - 教师ID，外键
+
+salary_month CHAR(6) NOT NULL - 工资月份(YYYYMM)
+
+base_salary DECIMAL(10,2) - 基本工资
+
+bonus DECIMAL(10,2) DEFAULT 0 - 奖金
+
+deduction DECIMAL(10,2) DEFAULT 0 - 扣款
+
+tax DECIMAL(10,2) DEFAULT 0 - 税费
+
+net_salary DECIMAL(10,2) - 实发工资
+
+
+6. 收费管理表(Payment)
+功能：实现收费管理
+
+字段：
+
+payment_id INT PRIMARY KEY IDENTITY(1,1) - 收费ID，主键，自增
+
+profession_id INT FOREIGN KEY REFERENCES Profession(profession_id) - 职业ID，外键
+
+payment_no VARCHAR(20) NOT NULL UNIQUE - 收费单号
+
+amount DECIMAL(10,2) NOT NULL - 收费金额
+
+payment_date DATETIME DEFAULT GETDATE() - 支付日期
+
+i
