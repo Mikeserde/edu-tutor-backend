@@ -80,8 +80,8 @@
 - 创建数据库
 
 ```mysql
-CREATE DATABASE TutorServiceManagement;
-USE TutorServiceManagement;
+CREATE DATABASE TutorServiceDB;
+USE TutorServiceDB;
 ```
 - 建表
 
