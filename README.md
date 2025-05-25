@@ -48,7 +48,7 @@
 | TeacherId    | INT         | 外键      | 否       | -      | 关联的教师                 | 外键引用Teacher表                |
 | Date         | DATE        | -         | 否       | -      | 上课日期（如`2023-10-01`） |                                  |
 | StartTime    | TIME        | -         | 否       | -      | 开始时间（如`09:00`）      |                                  |
-| EndTime      | TIME        | -         | 否       | -      | 结束时间（如`11:00`）      |                                  |
+| StartTime    | TIME        | -         | 否       | -      | 结束时间（如`11:00`）      |                                  |
 
 ------
 
@@ -169,7 +169,7 @@ CREATE INDEX idx_payment_date ON Payment(PaymentDate, Status);
 
 ## 5. 存储过程
 ### 5.1 统计指定日期范围内各教师的授课时间总和
-​1.存储过程的创建
+1.存储过程的创建
 ```mysql
 DELIMITER //
 CREATE PROCEDURE CalculateTeacherHours(
@@ -203,7 +203,7 @@ CALL CalculateTeacherHours('2023-10-01', '2023-10-31');
         - 结果按总时长降序排列
 
 ### 5.2 统计各种职业的需求次数
-​1.存储过程的创建
+1.存储过程的创建
 ```mysql
 DELIMITER //
 CREATE PROCEDURE CountOccupationDemand()
@@ -218,7 +218,7 @@ BEGIN
     ORDER BY DemandCount DESC;
 END //
 DELIMITER ;
-```   
+```
 
 
 2.调用方式及功能说明
@@ -231,4 +231,4 @@ CALL CountOccupationDemand();
     - 逻辑：
         - 使用 LEFT JOIN 确保即使某职业未被登记也会显示（次数为0）
         - 按 OccupationTypeId 分组统计登记次数
-        - 结果按需求次数降序排列
+        - ##### 结果按需求次数降序排列
