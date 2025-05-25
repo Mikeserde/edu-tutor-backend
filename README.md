@@ -125,6 +125,7 @@ CREATE TABLE OccupationSchedule (
     Date DATE NOT NULL,
     StartTime TIME NOT NULL,
     EndTime TIME NOT NULL,
+    UNIQUE (OccupationId,TeacherId),
     FOREIGN KEY (OccupationId) REFERENCES OccupationRegistration(OccupationId),
     FOREIGN KEY (TeacherId) REFERENCES Teacher(TeacherId),
     CHECK (EndTime > StartTime)
