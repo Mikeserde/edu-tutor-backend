@@ -169,7 +169,7 @@ CREATE INDEX idx_payment_date ON Payment(PaymentDate, Status);
 
 ## 5. 存储过程
 ### 5.1 统计指定日期范围内各教师的授课时间总和
-​1. 
+​1.存储过程的创建
 ```mysql
 DELIMITER //
 CREATE PROCEDURE CalculateTeacherHours(
@@ -189,3 +189,46 @@ BEGIN
 END //
 DELIMITER ;
 ```
+2.调用方式及功能说明
+- 调用实例
+```mysql
+CALL CalculateTeacherHours('2023-10-01', '2023-10-31');
+```
+- 功能说明
+    - 输入：开始日期 start_date 和结束日期 end_date
+    - 输出：每位教师的 TeacherId、姓名 TeacherName 及其在指定日期范围内的总授课时长 TotalHours
+    - 逻辑：
+        - 使用 TIMESTAMPDIFF(HOUR, StartTime, EndTime) 计算单次授课时长（小时）
+        - 按 TeacherId 分组求和，并关联 Teacher 表获取教师姓名
+        - 结果按总时长降序排列
+
+### 5.2 统计各种职业的需求次数
+​1.存储过程的创建
+```mysql
+DELIMITER //
+CREATE PROCEDURE CountOccupationDemand()
+BEGIN
+    SELECT 
+        ot.OccupationTypeId,
+        ot.Name AS OccupationName,
+        COUNT(orr.OccupationId) AS DemandCount
+    FROM OccupationType ot
+    LEFT JOIN OccupationRegistration orr ON ot.OccupationTypeId = orr.OccupationTypeId
+    GROUP BY ot.OccupationTypeId, ot.Name
+    ORDER BY DemandCount DESC;
+END //
+DELIMITER ;
+```   
+
+
+2.调用方式及功能说明
+- 调用实例
+```mysql
+CALL CountOccupationDemand();
+```
+- 功能说明
+    - 输出：每种职业的 OccupationTypeId、职业名称 OccupationName 及其登记次数 DemandCount
+    - 逻辑：
+        - 使用 LEFT JOIN 确保即使某职业未被登记也会显示（次数为0）
+        - 按 OccupationTypeId 分组统计登记次数
+        - 结果按需求次数降序排列
