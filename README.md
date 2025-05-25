@@ -15,6 +15,7 @@
 | Name      | VARCHAR(50) | -         | 否       | -      | 教师姓名     |                                 |
 | Gender    | VARCHAR(2)  | -         | 否       | -      | 性别         | `CHECK (Gender IN ('男','女'))` |
 | Phone     | VARCHAR(20) | -         | 否       | -      | 联系电话     | 唯一约束                        |
+| HourlyFee        | DECIMAL(10,2) | -         | 否       | -      | 每小时课时费                 | `CHECK (HourlyFee > 0)` |
 
 ------
 
@@ -24,7 +25,6 @@
 | ---------------- | ------------- | --------- | -------- | ------ | ---------------------------- | ----------------------- |
 | OccupationTypeId | VARCHAR(10)   | 主键      | 否       | -      | 职业类型唯一标识             | 自增主键                |
 | Name             | VARCHAR(50)   | -         | 否       | -      | 职业类型名称（如“数学辅导”） | 唯一约束，不可重复      |
-| HourlyFee        | DECIMAL(10,2) | -         | 否       | -      | 每小时课时费                 | `CHECK (HourlyFee > 0)` |
 
 ------
 
@@ -93,6 +93,7 @@ CREATE TABLE Teacher (
     Name VARCHAR(50) NOT NULL,
     Gender VARCHAR(2) NOT NULL CHECK (Gender IN ('男', '女')),
     Phone VARCHAR(20) NOT NULL UNIQUE
+    HourlyFee DECIMAL(10,2) NOT NULL CHECK (HourlyFee > 0)
 );
 ```
 2. 职业类型表 (OccupationType)
@@ -101,7 +102,6 @@ CREATE TABLE Teacher (
 CREATE TABLE OccupationType (
     OccupationTypeId VARCHAR(10) PRIMARY KEY AUTO_INCREMENT,
     Name VARCHAR(50) NOT NULL UNIQUE,
-    HourlyFee DECIMAL(10,2) NOT NULL CHECK (HourlyFee > 0)
 );
 ```
 3. 职业登记表 (OccupationRegistration)
