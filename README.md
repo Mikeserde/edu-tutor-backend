@@ -66,10 +66,10 @@
 
 ### 3.2. 职业类型表 (OccupationType)
 
-| 字段名           | 数据类型      | 主键/外键 | 允许空值 | 默认值 | 说明                         | 约束/备注               |
-| ---------------- | ------------- | --------- | -------- | ------ | ---------------------------- | ----------------------- |
-| OccupationTypeId | VARCHAR(10)   | 主键      | 否       | -      | 职业类型唯一标识             | 自增主键                |
-| Name             | VARCHAR(50)   | -         | 否       | -      | 职业类型名称（如“数学辅导”） | 唯一约束，不可重复      |
+| 字段名           | 数据类型    | 主键/外键 | 允许空值 | 默认值 | 说明                         | 约束/备注          |
+| ---------------- | ----------- | --------- | -------- | ------ | ---------------------------- | ------------------ |
+| OccupationTypeId | INT         | 主键      | 否       | -      | 职业类型唯一标识             | 自增主键           |
+| Name             | VARCHAR(50) | -         | 否       | -      | 职业类型名称（如“数学辅导”） | 唯一约束，不可重复 |
 
 ------
 
@@ -77,8 +77,8 @@
 
 | 字段名           | 数据类型     | 主键/外键 | 允许空值 | 默认值 | 说明             | 约束/备注                    |
 | ---------------- | ------------ | --------- | -------- | ------ | ---------------- | ---------------------------- |
-| OccupationId     | VARCHAR(10)  | 主键      | 否       | -      | 职业登记唯一标识 | 自增主键                     |
-| OccupationTypeId | VARCHAR(10)  | 外键      | 否       | -      | 关联的职业类型   | 外键引用 `OccupationType` 表 |
+| OccupationId     | INT          | 主键      | 否       | -      | 职业登记唯一标识 | 自增主键                     |
+| OccupationTypeId | INT          | 外键      | 否       | -      | 关联的职业类型   | 外键引用 `OccupationType` 表 |
 | Address          | VARCHAR(100) | -         | 否       | -      | 上课地址         |                              |
 | ContactPhone     | VARCHAR(20)  | -         | 否       | -      | 联系电话         |                              |
 
@@ -86,14 +86,14 @@
 
 ### 3.4. 职业作息表 (OccupationSchedule)
 
-| 字段名       | 数据类型    | 主键/外键 | 允许空值 | 默认值 | 说明                       | 约束/备注                        |
-| ------------ | ----------- | --------- | -------- | ------ | -------------------------- | -------------------------------- |
-| ScheduleId   | INT         | 主键      | 否       | 自增   | 作息唯一标识               | 自增主键                         |
-| OccupationId | VARCHAR(10) | 外键      | 否       | -      | 关联的职业登记             | 外键引用OccupationRegistration表 |
-| TeacherId    | INT         | 外键      | 否       | -      | 关联的教师                 | 外键引用Teacher表                |
-| Date         | DATE        | -         | 否       | -      | 上课日期（如`2023-10-01`） |                                  |
-| StartTime    | TIME        | -         | 否       | -      | 开始时间（如`09:00`）      |                                  |
-| EndTime      | TIME        | -         | 否       | -      | 结束时间（如`11:00`）      |                                  |
+| 字段名       | 数据类型 | 主键/外键 | 允许空值 | 默认值 | 说明                       | 约束/备注                        |
+| ------------ | -------- | --------- | -------- | ------ | -------------------------- | -------------------------------- |
+| ScheduleId   | INT      | 主键      | 否       | 自增   | 作息唯一标识               | 自增主键                         |
+| OccupationId | INT      | 外键      | 否       | -      | 关联的职业登记             | 外键引用OccupationRegistration表 |
+| TeacherId    | INT      | 外键      | 否       | -      | 关联的教师                 | 外键引用Teacher表                |
+| Date         | DATE     | -         | 否       | -      | 上课日期（如`2023-10-01`） |                                  |
+| StartTime    | TIME     | -         | 否       | -      | 开始时间（如`09:00`）      |                                  |
+| EndTime      | TIME     | -         | 否       | -      | 结束时间（如`11:00`）      |                                  |
 
 ------
 
@@ -114,7 +114,7 @@
 | 字段名        | 数据类型      | 主键/外键 | 允许空值 | 默认值 | 说明                       | 约束/备注                        |
 | ------------- | ------------- | --------- | -------- | ------ | -------------------------- | -------------------------------- |
 | PaymentId     | INT           | 主键      | 否       | 自增   | 收费记录唯一标识           | 自增主键                         |
-| OccupationId  | VARCHAR(10)   | 外键      | 否       | -      | 关联的职业登记             | 外键引用OccupationRegistration表 |
+| OccupationId  | INT           | 外键      | 否       | -      | 关联的职业登记             | 外键引用OccupationRegistration表 |
 | PaymentDate   | DATE          | -         | 否       | -      | 缴费日期（如`2023-10-02`） |                                  |
 | Amount        | DECIMAL(10,2) | -         | 否       | -      | 缴费金额                   | 必须大于0                        |
 | PaymentMethod | VARCHAR(20)   | -         | 否       | -      | 支付方式                   | （“支付宝” “现金” "银行卡"）     |
@@ -137,7 +137,7 @@ CREATE TABLE Teacher (
     TeacherId INT PRIMARY KEY AUTO_INCREMENT,
     Name VARCHAR(50) NOT NULL,
     Gender VARCHAR(2) NOT NULL CHECK (Gender IN ('男', '女')),
-    Phone VARCHAR(20) NOT NULL UNIQUE
+    Phone VARCHAR(20) NOT NULL UNIQUE,
     HourlyFee DECIMAL(10,2) NOT NULL CHECK (HourlyFee > 0)
 );
 ```
@@ -145,16 +145,16 @@ CREATE TABLE Teacher (
 
 ```mysql
 CREATE TABLE OccupationType (
-    OccupationTypeId VARCHAR(10) PRIMARY KEY AUTO_INCREMENT,
-    Name VARCHAR(50) NOT NULL UNIQUE,
+    OccupationTypeId INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(50) NOT NULL UNIQUE
 );
 ```
 3. 职业登记表 (OccupationRegistration)
 
 ```mysql
 CREATE TABLE OccupationRegistration (
-    OccupationId VARCHAR(10) PRIMARY KEY AUTO_INCREMENT,
-    OccupationTypeId VARCHAR(10) NOT NULL,
+    OccupationId INT PRIMARY KEY AUTO_INCREMENT,
+    OccupationTypeId INT NOT NULL,
     Address VARCHAR(100) NOT NULL,
     ContactPhone VARCHAR(20) NOT NULL,
     FOREIGN KEY (OccupationTypeId) REFERENCES OccupationType(OccupationTypeId)
@@ -165,7 +165,7 @@ CREATE TABLE OccupationRegistration (
 ```mysql
 CREATE TABLE OccupationSchedule (
     ScheduleId INT PRIMARY KEY AUTO_INCREMENT,
-    OccupationId VARCHAR(10) NOT NULL,
+    OccupationId INT NOT NULL,
     TeacherId INT NOT NULL,
     Date DATE NOT NULL,
     StartTime TIME NOT NULL,
@@ -194,7 +194,7 @@ CREATE TABLE Salary (
 ```mysql
 CREATE TABLE Payment (
     PaymentId INT PRIMARY KEY AUTO_INCREMENT,
-    OccupationId VARCHAR(10) NOT NULL,
+    OccupationId INT NOT NULL,
     PaymentDate DATE NOT NULL,
     Amount DECIMAL(10,2) NOT NULL CHECK (Amount > 0),
     PaymentMethod VARCHAR(20) NOT NULL CHECK (PaymentMethod IN ('支付宝', '现金', '银行卡')),
