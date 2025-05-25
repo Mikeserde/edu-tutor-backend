@@ -159,18 +159,31 @@ CREATE TABLE Payment (
 ```
 ​	7.创建索引提高查询性能
 ```mysql
-CREATE INDEX idx_teacher_phone ON Teacher(Phone);
-CREATE INDEX idx_occupation_type ON OccupationType(Name);
-CREATE INDEX idx_occupation_reg ON OccupationRegistration(OccupationTypeId, Status);
-CREATE INDEX idx_schedule_date ON OccupationSchedule(ScheduleDate, TeacherId);
-CREATE INDEX idx_salary_month ON Salary(SalaryMonth, TeacherId);
-CREATE INDEX idx_payment_date ON Payment(PaymentDate, Status);
+-- 1. 教师表 (Teacher)
+CREATE INDEX idx_teacher_phone ON Teacher(Phone);  -- 按手机号快速查找教师
+
+-- 2. 职业类型表 (OccupationType)
+-- Name 字段已通过 UNIQUE 约束自动创建唯一索引，无需额外索引
+
+-- 3. 职业登记表 (OccupationRegistration)
+CREATE INDEX idx_occupation_reg ON OccupationRegistration(OccupationTypeId);  -- 加速按职业类型筛选登记
+
+-- 4. 职业作息表 (OccupationSchedule)
+CREATE INDEX idx_schedule_date ON OccupationSchedule(Date, TeacherId);  -- 按日期和教师查询排班
+CREATE INDEX idx_schedule_teacher ON OccupationSchedule(TeacherId);     -- 按教师统计排班
+
+-- 5. 工资表 (Salary)
+CREATE INDEX idx_salary_payment ON Salary(TeacherId, PaymentDate);  -- 按教师和日期查工资
+
+-- 6. 收费表 (Payment)
+CREATE INDEX idx_payment_date ON Payment(PaymentDate, Status);  -- 按日期和状态查缴费记录
+CREATE INDEX idx_payment_occupation ON Payment(OccupationId);  -- 按职业登记查关联费用
 ```
 
 
 ## 5. 存储过程
 ### 5.1 统计指定日期范围内各教师的授课时间总和
-​1.存储过程的创建
+1.存储过程的创建
 ```mysql
 DELIMITER //
 CREATE PROCEDURE CalculateTeacherHours(
@@ -204,7 +217,7 @@ CALL CalculateTeacherHours('2023-10-01', '2023-10-31');
         - 结果按总时长降序排列
 
 ### 5.2 统计各种职业的需求次数
-​1.存储过程的创建
+1.存储过程的创建
 ```mysql
 DELIMITER //
 CREATE PROCEDURE CountOccupationDemand()
@@ -219,7 +232,7 @@ BEGIN
     ORDER BY DemandCount DESC;
 END //
 DELIMITER ;
-```   
+```
 
 
 2.调用方式及功能说明
