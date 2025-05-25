@@ -2,7 +2,52 @@
 
 ## 1. 需求分析
 
+### 1.1. **教师（Teacher） 与 职业作息安排（OccupationSchedule）**
+
+- **关系名：** 教授（`teaches`）
+- **类型：** 一对多（1:N）
+- **描述：** 每位教师可以参与多次职业作息安排，每次安排对应一个具体的职业登记（OccupationRegistration）、日期和时间段。
+- **反向理解：** 一个作息安排只能关联一个教师。
+
+------
+
+### 1.2. **职业登记（OccupationRegistration） 与 职业作息安排（OccupationSchedule）**
+
+- **关系名：** 被安排（`scheduled-for`）
+- **类型：** 一对多（1:N）
+- **描述：** 每次职业登记（如某学生家庭的家教需求）可以安排多次不同时间段的教学作息，每次可能由不同的教师承担。
+- **反向理解：** 每次作息安排仅属于一个职业登记。
+
+------
+
+### 1.3. **教师（Teacher） 与 工资（Salary）**
+
+- **关系名：** 获得工资（`receives`）
+- **类型：** 一对多（1:N）
+- **描述：** 每位教师可以收到多次工资记录（例如每月结算一次）。
+- **每条工资记录包含：** 课时数、支付日期和总金额等。
+
+------
+
+### 1.4. **职业登记（OccupationRegistration） 与 收费记录（Payment）**
+
+- **关系名：** 支付（`pays-for`）
+- **类型：** 一对多（1:N）
+- **描述：** 每个职业登记可能产生多次付款（例如按月或按课时结算），用于支付给机构或教师。
+- **每笔付款记录包含：** 金额、支付方式、支付状态等。
+
+------
+
+### 1.5. **职业类型（OccupationType） 与 职业登记（OccupationRegistration）**
+
+- **关系名：** 类型归属（`has-type`）
+- **类型：** 一对多（1:N）
+- **描述：** 每个职业登记属于某种职业类型（如“学生家长”、“培训机构”等）。
+- **反向理解：** 一个职业类型可以对应多个职业登记。
+
 ## 2. E-R图绘制
+
+
 
 ## 3. 表结构定义
 **表名和字段名全部采用大驼峰方式命名，确保和后端代码的命名一致，方便数据操控**
@@ -125,6 +170,7 @@ CREATE TABLE OccupationSchedule (
     Date DATE NOT NULL,
     StartTime TIME NOT NULL,
     EndTime TIME NOT NULL,
+    UNIQUE (OccupationId,TeacherId),
     FOREIGN KEY (OccupationId) REFERENCES OccupationRegistration(OccupationId),
     FOREIGN KEY (TeacherId) REFERENCES Teacher(TeacherId),
     CHECK (EndTime > StartTime)
@@ -158,12 +204,25 @@ CREATE TABLE Payment (
 ```
 ​	7.创建索引提高查询性能
 ```mysql
-CREATE INDEX idx_teacher_phone ON Teacher(Phone);
-CREATE INDEX idx_occupation_type ON OccupationType(Name);
-CREATE INDEX idx_occupation_reg ON OccupationRegistration(OccupationTypeId, Status);
-CREATE INDEX idx_schedule_date ON OccupationSchedule(ScheduleDate, TeacherId);
-CREATE INDEX idx_salary_month ON Salary(SalaryMonth, TeacherId);
-CREATE INDEX idx_payment_date ON Payment(PaymentDate, Status);
+-- 1. 教师表 (Teacher)
+CREATE INDEX idx_teacher_phone ON Teacher(Phone);  -- 按手机号快速查找教师
+
+-- 2. 职业类型表 (OccupationType)
+-- Name 字段已通过 UNIQUE 约束自动创建唯一索引，无需额外索引
+
+-- 3. 职业登记表 (OccupationRegistration)
+CREATE INDEX idx_occupation_reg ON OccupationRegistration(OccupationTypeId);  -- 加速按职业类型筛选登记
+
+-- 4. 职业作息表 (OccupationSchedule)
+CREATE INDEX idx_schedule_date ON OccupationSchedule(Date, TeacherId);  -- 按日期和教师查询排班
+CREATE INDEX idx_schedule_teacher ON OccupationSchedule(TeacherId);     -- 按教师统计排班
+
+-- 5. 工资表 (Salary)
+CREATE INDEX idx_salary_payment ON Salary(TeacherId, PaymentDate);  -- 按教师和日期查工资
+
+-- 6. 收费表 (Payment)
+CREATE INDEX idx_payment_date ON Payment(PaymentDate, Status);  -- 按日期和状态查缴费记录
+CREATE INDEX idx_payment_occupation ON Payment(OccupationId);  -- 按职业登记查关联费用
 ```
 
 
