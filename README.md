@@ -66,14 +66,14 @@
 
 ### 3.6. 收费表 (Payment)
 
-| 字段名        | 数据类型      | 主键/外键 | 允许空值 | 默认值 | 说明                         | 约束/备注                        |
-| ------------- | ------------- | --------- | -------- | ------ | ---------------------------- | -------------------------------- |
-| PaymentId     | INT           | 主键      | 否       | 自增   | 收费记录唯一标识             | 自增主键                         |
-| OccupationId  | VARCHAR(10)   | 外键      | 否       | -      | 关联的职业登记               | 外键引用OccupationRegistration表 |
-| PaymentDate   | DATE          | -         | 否       | -      | 缴费日期（如`2023-10-02`）   |                                  |
-| Amount        | DECIMAL(10,2) | -         | 否       | -      | 缴费金额                     | 必须大于0                        |
-| PaymentMethod | VARCHAR(20)   | -         | 否       | -      | 支付方式（如“支付宝”“现金”） |                                  |
-| Status        | VARCHAR(10)   | -         | 否       | 未支付 | 支付状态（已支付/未支付）    | ENUM('已支付','未支付')          |
+| 字段名        | 数据类型      | 主键/外键 | 允许空值 | 默认值 | 说明                       | 约束/备注                        |
+| ------------- | ------------- | --------- | -------- | ------ | -------------------------- | -------------------------------- |
+| PaymentId     | INT           | 主键      | 否       | 自增   | 收费记录唯一标识           | 自增主键                         |
+| OccupationId  | VARCHAR(10)   | 外键      | 否       | -      | 关联的职业登记             | 外键引用OccupationRegistration表 |
+| PaymentDate   | DATE          | -         | 否       | -      | 缴费日期（如`2023-10-02`） |                                  |
+| Amount        | DECIMAL(10,2) | -         | 否       | -      | 缴费金额                   | 必须大于0                        |
+| PaymentMethod | VARCHAR(20)   | -         | 否       | -      | 支付方式                   | （“支付宝” “现金” "银行卡"）     |
+| Status        | VARCHAR(10)   | -         | 否       | 未支付 | 支付状态（已支付/未支付）  | ENUM('已支付','未支付')          |
 
 ------
 ## 4. MySQL编写
@@ -149,9 +149,10 @@ CREATE TABLE Salary (
 CREATE TABLE Payment (
     PaymentId INT PRIMARY KEY AUTO_INCREMENT,
     OccupationId VARCHAR(10) NOT NULL,
+    PaymentDate DATE NOT NULL,
     Amount DECIMAL(10,2) NOT NULL CHECK (Amount > 0),
-    PaymentDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PaymentMethod VARCHAR(20) NOT NULL,
+    PaymentMethod VARCHAR(20) NOT NULL CHECK (PaymentMethod IN ('支付宝', '现金', '银行卡')),
+    Status ENUM('已支付', '未支付') NOT NULL DEFAULT '未支付',
     FOREIGN KEY (OccupationId) REFERENCES OccupationRegistration(OccupationId)
 );
 ```
