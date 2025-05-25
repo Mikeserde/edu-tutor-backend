@@ -15,6 +15,7 @@
 | Name      | VARCHAR(50) | -         | 否       | -      | 教师姓名     |                                 |
 | Gender    | VARCHAR(2)  | -         | 否       | -      | 性别         | `CHECK (Gender IN ('男','女'))` |
 | Phone     | VARCHAR(20) | -         | 否       | -      | 联系电话     | 唯一约束                        |
+| HourlyFee        | DECIMAL(10,2) | -         | 否       | -      | 每小时课时费                 | `CHECK (HourlyFee > 0)` |
 
 ------
 
@@ -24,7 +25,6 @@
 | ---------------- | ------------- | --------- | -------- | ------ | ---------------------------- | ----------------------- |
 | OccupationTypeId | VARCHAR(10)   | 主键      | 否       | -      | 职业类型唯一标识             | 自增主键                |
 | Name             | VARCHAR(50)   | -         | 否       | -      | 职业类型名称（如“数学辅导”） | 唯一约束，不可重复      |
-| HourlyFee        | DECIMAL(10,2) | -         | 否       | -      | 每小时课时费                 | `CHECK (HourlyFee > 0)` |
 
 ------
 
@@ -66,14 +66,14 @@
 
 ### 3.6. 收费表 (Payment)
 
-| 字段名        | 数据类型      | 主键/外键 | 允许空值 | 默认值 | 说明                         | 约束/备注                        |
-| ------------- | ------------- | --------- | -------- | ------ | ---------------------------- | -------------------------------- |
-| PaymentId     | INT           | 主键      | 否       | 自增   | 收费记录唯一标识             | 自增主键                         |
-| OccupationId  | VARCHAR(10)   | 外键      | 否       | -      | 关联的职业登记               | 外键引用OccupationRegistration表 |
-| PaymentDate   | DATE          | -         | 否       | -      | 缴费日期（如`2023-10-02`）   |                                  |
-| Amount        | DECIMAL(10,2) | -         | 否       | -      | 缴费金额                     | 必须大于0                        |
-| PaymentMethod | VARCHAR(20)   | -         | 否       | -      | 支付方式（如“支付宝”“现金”） |                                  |
-| Status        | VARCHAR(10)   | -         | 否       | 未支付 | 支付状态（已支付/未支付）    | ENUM('已支付','未支付')          |
+| 字段名        | 数据类型      | 主键/外键 | 允许空值 | 默认值 | 说明                       | 约束/备注                        |
+| ------------- | ------------- | --------- | -------- | ------ | -------------------------- | -------------------------------- |
+| PaymentId     | INT           | 主键      | 否       | 自增   | 收费记录唯一标识           | 自增主键                         |
+| OccupationId  | VARCHAR(10)   | 外键      | 否       | -      | 关联的职业登记             | 外键引用OccupationRegistration表 |
+| PaymentDate   | DATE          | -         | 否       | -      | 缴费日期（如`2023-10-02`） |                                  |
+| Amount        | DECIMAL(10,2) | -         | 否       | -      | 缴费金额                   | 必须大于0                        |
+| PaymentMethod | VARCHAR(20)   | -         | 否       | -      | 支付方式                   | （“支付宝” “现金” "银行卡"）     |
+| Status        | VARCHAR(10)   | -         | 否       | 未支付 | 支付状态（已支付/未支付）  | ENUM('已支付','未支付')          |
 
 ------
 ## 4. MySQL编写
@@ -93,6 +93,7 @@ CREATE TABLE Teacher (
     Name VARCHAR(50) NOT NULL,
     Gender VARCHAR(2) NOT NULL CHECK (Gender IN ('男', '女')),
     Phone VARCHAR(20) NOT NULL UNIQUE
+    HourlyFee DECIMAL(10,2) NOT NULL CHECK (HourlyFee > 0)
 );
 ```
 2. 职业类型表 (OccupationType)
@@ -101,7 +102,6 @@ CREATE TABLE Teacher (
 CREATE TABLE OccupationType (
     OccupationTypeId VARCHAR(10) PRIMARY KEY AUTO_INCREMENT,
     Name VARCHAR(50) NOT NULL UNIQUE,
-    HourlyFee DECIMAL(10,2) NOT NULL CHECK (HourlyFee > 0)
 );
 ```
 3. 职业登记表 (OccupationRegistration)
@@ -149,9 +149,10 @@ CREATE TABLE Salary (
 CREATE TABLE Payment (
     PaymentId INT PRIMARY KEY AUTO_INCREMENT,
     OccupationId VARCHAR(10) NOT NULL,
+    PaymentDate DATE NOT NULL,
     Amount DECIMAL(10,2) NOT NULL CHECK (Amount > 0),
-    PaymentDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PaymentMethod VARCHAR(20) NOT NULL,
+    PaymentMethod VARCHAR(20) NOT NULL CHECK (PaymentMethod IN ('支付宝', '现金', '银行卡')),
+    Status ENUM('已支付', '未支付') NOT NULL DEFAULT '未支付',
     FOREIGN KEY (OccupationId) REFERENCES OccupationRegistration(OccupationId)
 );
 ```
