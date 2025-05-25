@@ -164,3 +164,27 @@ CREATE INDEX idx_schedule_date ON OccupationSchedule(ScheduleDate, TeacherId);
 CREATE INDEX idx_salary_month ON Salary(SalaryMonth, TeacherId);
 CREATE INDEX idx_payment_date ON Payment(PaymentDate, Status);
 ```
+
+
+## 5. 存储过程
+### 5.1 统计指定日期范围内各教师的授课时间总和
+​1. 
+```mysql
+DELIMITER //
+CREATE PROCEDURE CalculateTeacherHours(
+    IN start_date DATE,
+    IN end_date DATE
+)
+BEGIN
+    SELECT 
+        os.TeacherId,
+        t.Name AS TeacherName,
+        SUM(TIMESTAMPDIFF(HOUR, os.StartTime, os.EndTime)) AS TotalHours
+    FROM OccupationSchedule os
+    JOIN Teacher t ON os.TeacherId = t.TeacherId
+    WHERE os.Date BETWEEN start_date AND end_date
+    GROUP BY os.TeacherId, t.Name
+    ORDER BY TotalHours DESC;
+END //
+DELIMITER ;
+```
