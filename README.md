@@ -11,5 +11,7 @@
 
 ## 3.开发指南
 
-1. 初始项目的导入：先创建一个springboot2.7.6，java8，的meven工程server（教程第2集有教程），然后再用仓库里的server文件夹的内容去替换对应的内容
-2. 初始项目中配置了项目热部署、swagger-ui、mybatis-plus，可以启动项目后，可以通过浏览器访问(http://localhost:8088/swagger-ui/index.html#/)来查看已经编写好的后端接口
+1. 初始项目的导入：先创建一个springboot2.7.6，java8的meven工程server（教程第2集，创建项目时不要选择创建git仓库，会导致git套嵌）然后再用仓库里的server文件夹的内容去替换对应的内容
+2. 初始项目中配置了项目热部署、swagger-ui、mybatis-plus，启动项目后，可以通过浏览器访问(http://localhost:8088/swagger-ui/index.html#/)来查看已经编写好的后端接口
+3. 请保证项目所在目录没有中文，否则可能会找不到主类所在路径导致项目启动失败
+4. 首次启动项目请先git add，将经过替换操作的内容暂存，否则idea会忽略修改，导致启动失败
