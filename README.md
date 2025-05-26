@@ -7,9 +7,20 @@
 ## 2.任务
 
 1. 实现前端和后端之间的数据交换，即实现controllers
+
 2. 实现后端与数据库之间的数据交换，即实现models和mappers
 
-## 3.开发指南
+## 3.配置
+
+| 软件          | 版本      |
+| ------------- | --------- |
+| IntelliJ IDEA | 2023.2.3  |
+| DataGrip      | 2024.3.5  |
+| apache-maven  | 3.6.1     |
+| springboot    | 2.6.7     |
+| java          | 1.8.0_202 |
+
+## 4.开发指南
 
 1. 初始项目的导入：先创建一个springboot2.7.6，java8的meven工程server（教程第2集，创建项目时不要选择创建git仓库，会导致git套嵌）然后再用仓库里的server文件夹的内容去替换对应的内容
 2. 初始项目中配置了项目热部署、swagger-ui、mybatis-plus，启动项目后，可以通过浏览器访问 http://localhost:8088/swagger-ui.html 来查看已经编写好的后端接口
