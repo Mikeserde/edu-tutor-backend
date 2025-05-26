@@ -122,7 +122,7 @@
 | PaymentDate   | DATE          | -         | 否       | -      | 缴费日期（如`2023-10-02`） |                                  |
 | Amount        | DECIMAL(10,2) | -         | 否       | -      | 缴费金额                   | 必须大于0                        |
 | PaymentMethod | VARCHAR(20)   | -         | 否       | -      | 支付方式                   | （“支付宝” “现金” "银行卡"）     |
-| Status        | VARCHAR(10)   | -         | 否       | 未支付 | 支付状态（已支付/未支付）  | ENUM('已支付','未支付')          |
+|状态| VARCHAR(10)   | -         | 否       | 未支付 | 支付状态（已支付/未支付）  | ENUM('已支付','未支付')          |
 
 ------
 ## 4. MySQL编写
@@ -294,4 +294,4 @@ CALL CountOccupationDemand();
     - 逻辑：
         - 使用 LEFT JOIN 确保即使某职业未被登记也会显示（次数为0）
         - 按 OccupationTypeId 分组统计登记次数
-        - ###### 结果按需求次数降序排列
+        - 结果按需求次数降序排列
