@@ -11,4 +11,5 @@
 
 ## 3.开发指南
 
-1. 初始项目中配置了项目热部署、swagger-ui、mybatis-plus，可以启动项目后，可以通过浏览器访问(http://localhost:8088/swagger-ui/index.html#/)来查看已经编写好的后端接口
+1. 初始项目的导入：先创建一个springboot2.76，java8，的meven工程server（教程第2集有教程），然后再用仓库里的server文件夹的内容去替换对应的内容
+2. 初始项目中配置了项目热部署、swagger-ui、mybatis-plus，可以启动项目后，可以通过浏览器访问(http://localhost:8088/swagger-ui/index.html#/)来查看已经编写好的后端接口
