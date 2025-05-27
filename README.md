@@ -39,3 +39,17 @@
    | config     | 配置类，负责配置一些maven外部工具的属性 |
    | utils      | 工具类，存放一些通用的工具类            |
    | model      | 实体类，与数据库的每一张表一一对应      |
+
+## 5.开发进度
+
+| 表名/存储过程          | 完成 |
+| ---------------------- | ---- |
+| Teacher                | ✔    |
+| OccupationType         |      |
+| OccupationRegistration |      |
+| OccupationSchedule     |      |
+| Salary                 |      |
+| Payment                |      |
+| TeacherHours           | ✔    |
+| OccupationDemand       | ✔    |
+
