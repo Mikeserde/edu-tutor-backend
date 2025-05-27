@@ -6,6 +6,7 @@ import com.example.server.model.Teacher;
 import com.example.server.service.TeacherService;
 import com.example.server.utils.Result;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,7 @@ public class TeacherController {
     @PutMapping("/{id}")
     public Result<Teacher> updateTeacher(
             @PathVariable @NotNull(message = "ID不能为空") Integer id,
+            @Parameter(name = "教师信息")
             @Valid @RequestBody Teacher teacher) {
         teacher.setTeacherId(id);
         boolean updated = teacherService.updateById(teacher);
@@ -51,8 +53,11 @@ public class TeacherController {
     @Operation(summary = "分页查询教师列表")
     @GetMapping
     public Result<Page<Teacher>> getTeachers(
+            @Parameter(name = "页号")
             @RequestParam(defaultValue = "1") Integer pageNum,
+            @Parameter(name = "页的大小")
             @RequestParam(defaultValue = "10") Integer pageSize,
+            @Parameter(name = "教师的名称")
             @RequestParam(required = false) String name) {
 
         Page<Teacher> page = new Page<>(pageNum, pageSize);
