@@ -45,9 +45,9 @@
 | 表名/存储过程          | 完成 |
 | ---------------------- | ---- |
 | Teacher                | ✔    |
-| OccupationType         |      |
+| OccupationType         | ✔    |
 | OccupationRegistration |      |
-| OccupationSchedule     |      |
+| OccupationSchedule     | ✔    |
 | Salary                 |      |
 | Payment                |      |
 | TeacherHours           | ✔    |
