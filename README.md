@@ -2,139 +2,127 @@
 
 ## 1. 需求分析
 
-### 1.1. **教师（Teacher） 与 职业作息安排（OccupationSchedule）**
+### **一、系统实现的功能**
 
-- **关系名：** 教授（`teaches`）
-- **类型：** 一对多（1:N）
-- **描述：** 每位教师可以参与多次职业作息安排，每次安排对应一个具体的职业登记（OccupationRegistration）、日期和时间段。
-- **反向理解：** 一个作息安排只能关联一个教师。
-
-------
-
-### 1.2. **职业登记（OccupationRegistration） 与 职业作息安排（OccupationSchedule）**
-
-- **关系名：** 被安排（`scheduled-for`）
-- **类型：** 一对多（1:N）
-- **描述：** 每次职业登记（如某学生家庭的家教需求）可以安排多次不同时间段的教学作息，每次可能由不同的教师承担。
-- **反向理解：** 每次作息安排仅属于一个职业登记。
-
-------
-
-### 1.3. **教师（Teacher） 与 工资（Salary）**
-
-- **关系名：** 获得工资（`receives`）
-- **类型：** 一对多（1:N）
-- **描述：** 每位教师可以收到多次工资记录（例如每月结算一次）。
-- **每条工资记录包含：** 课时数、支付日期和总金额等。
-
-------
-
-### 1.4. **职业登记（OccupationRegistration） 与 收费记录（Payment）**
-
-- **关系名：** 支付（`pays-for`）
-- **类型：** 一对多（1:N）
-- **描述：** 每个职业登记可能产生多次付款（例如按月或按课时结算），用于支付给机构或教师。
-- **每笔付款记录包含：** 金额、支付方式、支付状态等。
+1. **学生管理**
+   - 维护学生基本信息（姓名、性别、地址、联系电话）。
+   - 支持学生唯一标识和联系方式去重。
+2. **教师管理**
+   - 维护教师基本信息（姓名、性别、联系电话、课时费）。
+   - 约束性别为“男”或“女”，联系电话唯一，课时费必须大于零。
+3. **职业类型管理**
+   - 定义可选的职业类型（如“数学辅导”“英语辅导”），名称唯一。
+   - 为后续职业登记提供选项。
+4. **职业登记管理**
+   - 学生选择职业类型进行登记，关联学生与职业类型。
+   - 自动触发收费记录生成（固定金额 200 元）。
+5. **课程排期管理**
+   - 为每个职业登记安排具体的上课日期、时间及授课教师。
+   - 记录每节课的开始和结束时间，支持精确课时计算。
+6. **工资自动计算**
+   - 根据教师授课时长和课时费，按月统计总工资。
+   - 通过触发器实时更新工资表，确保数据一致性。
+7. **收费自动化**
+   - 职业登记创建时自动生成缴费记录，记录当前日期。
+   - 支持默认金额设定（200 元）和级联删除。
 
 ------
 
-### 1.5. **职业类型（OccupationType） 与 职业登记（OccupationRegistration）**
+### **二、业务流程**
 
-- **关系名：** 类型归属（`has-type`）
-- **类型：** 一对多（1:N）
-- **描述：** 每个职业登记属于某种职业类型（如“学生家长”、“培训机构”等）。
-- **反向理解：** 一个职业类型可以对应多个职业登记。
+1. **学生选择职业并登记**
+   - 步骤：
+     1. 系统记录学生选择职业类型（如“数学辅导”）。
+     2. 创建 `OccupationRegistration` 记录，关联学生与职业类型。
+     3. **触发器** `AfterOccupationRegistrationInsert` 自动生成 `Payment` 记录。
+2. **教师排课**
+   - 步骤：
+     1. 管理员为职业登记安排教师及上课时间（插入 `OccupationSchedule`）。
+     2. **触发器** `AfterOccupationScheduleInsert` 实时更新 `Salary` 表的当月工资数据。
+3. **课时统计与工资计算**
+   - 机制：
+     - 每次排课记录（增/删/改）触发工资表的更新。
+     - `Salary` 表按月（`Month` 字段）汇总教师的总授课时长和工资。
+4. **数据维护与清理**
+   - 操作：
+     - 删除学生或教师时，级联删除相关登记、排课、工资及收费记录。
+     - 保证数据完整性，避免脏数据残留。
 
-## 2. E-R图绘制
+------
 
-![](./image/E_R.png)
+### **三、表之间的联系**
 
-## 3. 表结构定义
+1. **核心关系图**
+
+![image-20250528163541195](image/image-20250528163541195.png)
+
+2. **外键级联说明**
+
+   - `OccupationRegistration`
+     - `StudentId` → `Student.StudentId`（级联删除）
+     - `OccupationTypeId` → `OccupationType.OccupationTypeId`（级联删除）
+   - `OccupationSchedule`
+     - `OccupationId` → `OccupationRegistration.OccupationId`（级联删除）
+     - `TeacherId` → `Teacher.TeacherId`（级联删除）
+   - `Salary`
+     - `TeacherId` → `Teacher.TeacherId`（级联删除）
+   - `Payment`
+     - `OccupationId` → `OccupationRegistration.OccupationId`（级联删除）
+
+3. **关键数据联动**
+
+   - **新增职业登记**：自动生成收费记录（`Payment`）。
+   - **排课修改**：实时更新工资表（`Salary`）中的当月数据。
+   - **删除教师/学生**：级联清理相关排课、工资、收费记录。
+
+------
+
+### **四、系统约束与规则**
+
+1. **数据唯一性**
+   - `Student.ContactPhone` 唯一。
+   - `Teacher.Phone` 唯一。
+   - `OccupationType.Name` 唯一。
+2. **业务规则**
+   - 性别仅允许“男”或“女”（`CHECK` 约束）。
+   - 课时费必须大于零（`CHECK (HourlyFee > 0)`）。
+   - 缴费金额固定为 200 元（可通过触发器扩展动态计算）。
+3. **自动化规则**
+   - 工资按自然月统计（`Month` 字段格式 `YYYY-MM`）。
+   - 排课时间冲突需由业务逻辑处理（未在数据库层约束）。
+
+------
+
+## 2. 表结构定义
 - **表名和字段名全部采用大驼峰方式命名，确保和后端代码的命名一致，方便数据操控**
 
-- **导入数据库：** 使用_localhost-2025_05_26_12_52_50-dump.sql
+- **导入数据库：** 使用**tutorservicedb.sql**文件
 
   **教程：**[DataGrip2024--操作 Mysql 数据库备份与恢复_datagrip备份还原数据库-CSDN博客](https://blog.csdn.net/weixin_52632140/article/details/142531060)
 
-### 3.1. 教师表 (Teacher)
-
-| 字段名    | 数据类型    | 主键/外键 | 允许空值 | 默认值 | 说明         | 约束/备注                       |
-| --------- | ----------- | --------- | -------- | ------ | ------------ | ------------------------------- |
-| TeacherId | INT         | 主键      | 否       | 自增   | 教师唯一标识 | 自增主键                        |
-|Name| VARCHAR(50) | -         | 否       | -      | 教师姓名     |                                 |
-| Gender    | VARCHAR(2)  | -         | 否       | -      | 性别         | `CHECK (Gender IN ('男','女'))` |
-| Phone     | VARCHAR(20) | -         | 否       | -      | 联系电话     | 唯一约束                        |
-| HourlyFee        | DECIMAL(10,2) | -         | 否       | -      | 每小时课时费                 | `CHECK (HourlyFee > 0)` |
-
-------
-
-### 3.2. 职业类型表 (OccupationType)
-
-| 字段名           | 数据类型    | 主键/外键 | 允许空值 | 默认值 | 说明                         | 约束/备注          |
-| ---------------- | ----------- | --------- | -------- | ------ | ---------------------------- | ------------------ |
-| OccupationTypeId | INT         | 主键      | 否       | -      | 职业类型唯一标识             | 自增主键           |
-|Name| VARCHAR(50) | -         | 否       | -      | 职业类型名称（如“数学辅导”） | 唯一约束，不可重复 |
-
-------
-
-### 3.3. 职业登记表 (OccupationRegistration)
-
-| 字段名           | 数据类型     | 主键/外键 | 允许空值 | 默认值 | 说明             | 约束/备注                    |
-| ---------------- | ------------ | --------- | -------- | ------ | ---------------- | ---------------------------- |
-| OccupationId     | INT          | 主键      | 否       | -      | 职业登记唯一标识 | 自增主键                     |
-| OccupationTypeId | INT          | 外键      | 否       | -      | 关联的职业类型   | 外键引用 `OccupationType` 表 |
-| Address          | VARCHAR(100) | -         | 否       | -      | 上课地址         |                              |
-| ContactPhone     | VARCHAR(20)  | -         | 否       | -      | 联系电话         |                              |
-
-------
-
-### 3.4. 职业作息表 (OccupationSchedule)
-
-| 字段名       | 数据类型 | 主键/外键 | 允许空值 | 默认值 | 说明                       | 约束/备注                        |
-| ------------ | -------- | --------- | -------- | ------ | -------------------------- | -------------------------------- |
-| ScheduleId   | INT      | 主键      | 否       | 自增   | 作息唯一标识               | 自增主键                         |
-| OccupationId | INT      | 外键      | 否       | -      | 关联的职业登记             | 外键引用OccupationRegistration表 |
-| TeacherId    | INT      | 外键      | 否       | -      | 关联的教师                 | 外键引用Teacher表                |
-| Date         | DATE     | -         | 否       | -      | 上课日期（如`2023-10-01`） |                                  |
-| StartTime    | TIME     | -         | 否       | -      | 开始时间（如`09:00`）      |                                  |
-| EndTime      | TIME     | -         | 否       | -      | 结束时间（如`11:00`）      |                                  |
-
-------
-
-### 3.5. 工资表 (Salary)
-
-| 字段名      | 数据类型      | 主键/外键 | 允许空值 | 默认值 | 说明                           | 约束/备注              |
-| ----------- | ------------- | --------- | -------- | ------ | ------------------------------ | ---------------------- |
-| SalaryId    | INT           | 主键      | 否       | 自增   | 工资单唯一标识                 | 自增主键               |
-| TeacherId   | INT           | 外键      | 否       | -      | 关联的教师                     | 外键引用Teacher表      |
-| PaymentDate | DATE          | -         | 否       | -      | 工资发放日期（如`2023-10-05`） |                        |
-| TotalHours  | DECIMAL(10,2) | -         | 否       | -      | 总授课时长（小时）             | 通过存储过程计算       |
-| TotalAmount | DECIMAL(10,2) | -         | 否       | -      | 应发工资总额                   | TotalHours × HourlyFee |
-
-------
-
-### 3.6. 收费表 (Payment)
-
-| 字段名        | 数据类型      | 主键/外键 | 允许空值 | 默认值 | 说明                       | 约束/备注                        |
-| ------------- | ------------- | --------- | -------- | ------ | -------------------------- | -------------------------------- |
-| PaymentId     | INT           | 主键      | 否       | 自增   | 收费记录唯一标识           | 自增主键                         |
-| OccupationId  | INT           | 外键      | 否       | -      | 关联的职业登记             | 外键引用OccupationRegistration表 |
-| PaymentDate   | DATE          | -         | 否       | -      | 缴费日期（如`2023-10-02`） |                                  |
-| Amount        | DECIMAL(10,2) | -         | 否       | -      | 缴费金额                   | 必须大于0                        |
-| PaymentMethod | VARCHAR(20)   | -         | 否       | -      | 支付方式                   | （“支付宝” “现金” "银行卡"）     |
-|Status| VARCHAR(10)   | -         | 否       | 未支付 | 支付状态（已支付/未支付）  | ENUM('已支付','未支付')          |
-
-------
-## 4. MySQL编写
-- 创建数据库
+#### **1. 学生表（Student）**
 
 ```mysql
-CREATE DATABASE TutorServiceDB;
-USE TutorServiceDB;
+CREATE TABLE Student (
+    StudentId INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(50) NOT NULL,
+    Gender VARCHAR(2) NOT NULL CHECK (Gender IN ('男', '女')),
+    Address VARCHAR(20) NOT NULL,
+    ContactPhone VARCHAR(20) NOT NULL UNIQUE
+);
 ```
-- 建表
 
-1. 教师表 (Teacher)
+| 字段名       | 数据类型    | 主键/外键 | 允许空值 | 默认值 | 说明         | 约束/备注                       |
+| ------------ | ----------- | --------- | -------- | ------ | ------------ | ------------------------------- |
+| StudentId    | INT         | 主键      | 否       | 自增   | 学生唯一标识 | 自增主键                        |
+| Name         | VARCHAR(50) | -         | 否       | -      | 学生姓名     |                                 |
+| Gender       | VARCHAR(2)  | -         | 否       | -      | 性别         | `CHECK (Gender IN ('男','女'))` |
+| Address      | VARCHAR(20) | -         | 否       | -      | 家庭地址     |                                 |
+| ContactPhone | VARCHAR(20) | -         | 否       | -      | 联系电话     | 唯一约束                        |
+
+------
+
+#### **2. 教师表 (Teacher)**
 
 ```mysql
 CREATE TABLE Teacher (
@@ -145,7 +133,18 @@ CREATE TABLE Teacher (
     HourlyFee DECIMAL(10,2) NOT NULL CHECK (HourlyFee > 0)
 );
 ```
-2. 职业类型表 (OccupationType)
+
+| 字段名    | 数据类型      | 主键/外键 | 允许空值 | 默认值 | 说明         | 约束/备注                       |
+| --------- | ------------- | --------- | -------- | ------ | ------------ | ------------------------------- |
+| TeacherId | INT           | 主键      | 否       | 自增   | 教师唯一标识 | 自增主键                        |
+| Name      | VARCHAR(50)   | -         | 否       | -      | 教师姓名     |                                 |
+| Gender    | VARCHAR(2)    | -         | 否       | -      | 性别         | `CHECK (Gender IN ('男','女'))` |
+| Phone     | VARCHAR(20)   | -         | 否       | -      | 联系电话     | 唯一约束                        |
+| HourlyFee | DECIMAL(10,2) | -         | 否       | -      | 每小时课时费 | `CHECK (HourlyFee > 0)`         |
+
+------
+
+#### **3. 职业类型表 (OccupationType)**
 
 ```mysql
 CREATE TABLE OccupationType (
@@ -153,18 +152,35 @@ CREATE TABLE OccupationType (
     Name VARCHAR(50) NOT NULL UNIQUE
 );
 ```
-3. 职业登记表 (OccupationRegistration)
+
+| 字段名           | 数据类型    | 主键/外键 | 允许空值 | 默认值 | 说明                         | 约束/备注          |
+| ---------------- | ----------- | --------- | -------- | ------ | ---------------------------- | ------------------ |
+| OccupationTypeId | INT         | 主键      | 否       | 自增   | 职业类型唯一标识             | 自增主键，唯一     |
+| Name             | VARCHAR(50) | -         | 否       | -      | 职业类型名称（如“数学辅导”） | 唯一约束，不可重复 |
+
+------
+
+#### **4. 职业登记表 (OccupationRegistration)**
 
 ```mysql
 CREATE TABLE OccupationRegistration (
     OccupationId INT PRIMARY KEY AUTO_INCREMENT,
     OccupationTypeId INT NOT NULL,
-    Address VARCHAR(100) NOT NULL,
-    ContactPhone VARCHAR(20) NOT NULL,
-    FOREIGN KEY (OccupationTypeId) REFERENCES OccupationType(OccupationTypeId)
+    StudentId INT NOT NULL,
+    FOREIGN KEY (OccupationTypeId) REFERENCES OccupationType(OccupationTypeId) ON DELETE CASCADE,
+    FOREIGN KEY (StudentId) REFERENCES Student(StudentId) ON DELETE CASCADE,
+    UNIQUE (OccupationTypeId,StudentId)
 );
 ```
-4. 职业作息表 (OccupationSchedule)
+
+| 字段名           | 数据类型 | 主键/外键 | 允许空值 | 默认值 | 说明             | 约束/备注                              |
+| ---------------- | -------- | --------- | -------- | ------ | ---------------- | -------------------------------------- |
+| OccupationId     | INT      | 主键      | 否       | 自增   | 职业登记唯一标识 | 自增主键                               |
+| OccupationTypeId | INT      | 外键      | 否       | -      | 关联的职业类型   | 外键引用 `OccupationType` 表，级联删除 |
+| StudentId        | INT      | 外键      | 否       | -      | 学生唯一标识     | 外键引用 `Student` 表，级联删除        |
+
+------
+#### **5. 职业作息表 (OccupationSchedule)**
 
 ```mysql
 CREATE TABLE OccupationSchedule (
@@ -174,60 +190,331 @@ CREATE TABLE OccupationSchedule (
     Date DATE NOT NULL,
     StartTime TIME NOT NULL,
     EndTime TIME NOT NULL,
-    UNIQUE (OccupationId,TeacherId),
-    FOREIGN KEY (OccupationId) REFERENCES OccupationRegistration(OccupationId),
-    FOREIGN KEY (TeacherId) REFERENCES Teacher(TeacherId),
-    CHECK (EndTime > StartTime)
+    FOREIGN KEY (OccupationId) REFERENCES OccupationRegistration(OccupationId) ON DELETE CASCADE,
+    FOREIGN KEY (TeacherId) REFERENCES Teacher(TeacherId) ON DELETE CASCADE,
+    UNIQUE (OccupationId,TeacherId,Date,StartTime,EndTime),
+    CONSTRAINT chk_endtime_after_starttime CHECK (EndTime >= StartTime)
 );
+
 ```
 
-5. 工资表 (Salary)
+| 字段名       | 数据类型 | 主键/外键 | 允许空值 | 默认值 | 说明                       | 约束/备注                                      |
+| ------------ | -------- | --------- | -------- | ------ | -------------------------- | ---------------------------------------------- |
+| ScheduleId   | INT      | 主键      | 否       | 自增   | 作息唯一标识               | 自增主键                                       |
+| OccupationId | INT      | 外键      | 否       | -      | 关联的职业登记             | 外键引用 `OccupationRegistration` 表，级联删除 |
+| TeacherId    | INT      | 外键      | 否       | -      | 关联的教师                 | 外键引用 `Teacher` 表，级联删除                |
+| Date         | DATE     | -         | 否       | -      | 上课日期（如`2023-10-01`） |                                                |
+| StartTime    | TIME     | -         | 否       | -      | 开始时间（如`09:00`）      | StartTime<=EndTime                             |
+| EndTime      | TIME     | -         | 否       | -      | 结束时间（如`11:00`）      |                                                |
+
+------
+
+#### **6. 工资表 (Salary)**
+
+##### 1. 表结构
 
 ```mysql
 CREATE TABLE Salary (
-    SalaryId INT PRIMARY KEY AUTO_INCREMENT,
     TeacherId INT NOT NULL,
-    TotalHours DECIMAL(10,2) NOT NULL,
-    PaymentDate DATETIME,
-    TotalAmount DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY (TeacherId) REFERENCES Teacher(TeacherId)
+    Month CHAR(7) NOT NULL COMMENT '格式: YYYY-MM',
+    TotalHours DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    TotalAmount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    PRIMARY KEY (TeacherId, Month),  -- 联合主键
+    FOREIGN KEY (TeacherId) REFERENCES Teacher(TeacherId) ON DELETE CASCADE
 );
 ```
-6. 收费表 (Payment)
+
+| 字段名      | 数据类型      | 说明                    | 约束/备注                       |
+| ----------- | ------------- | ----------------------- | ------------------------------- |
+| TeacherId   | INT           | 关联的教师              | 外键引用 `Teacher` 表，级联删除 |
+| Month       | CHAR(7)       | 工资归属月份（YYYY-MM） | 联合主键                        |
+| TotalHours  | DECIMAL(10,2) | 总授课时长（小时）      | 默认值 0.00                     |
+| TotalAmount | DECIMAL(10,2) | 应发工资总额            | TotalHours × HourlyFee          |
+
+------
+
+##### **2. 触发器设计**
+
+为 `OccupationSchedule` 表设计三个触发器，分别处理 **INSERT**、**UPDATE**、**DELETE** 操作，自动更新工资表。
+
+------
+
+##### **2.1 INSERT 触发器**
+
+当插入新排课时，累加对应教师的当月工资数据：
+
+```mysql
+-- 插入课程安排后的触发器
+DELIMITER //
+CREATE TRIGGER after_occupation_schedule_insert
+AFTER INSERT ON OccupationSchedule
+FOR EACH ROW
+BEGIN
+    DECLARE v_hours DECIMAL(10,2);
+    DECLARE v_hourly_fee DECIMAL(10,2);
+
+    -- 计算课程时长（小时）
+    SET v_hours = TIME_TO_SEC(TIMEDIFF(NEW.EndTime, NEW.StartTime)) / 3600;
+
+    -- 获取教师当前课时费
+    SELECT HourlyFee INTO v_hourly_fee FROM Teacher WHERE TeacherId = NEW.TeacherId;
+
+    -- 更新工资表，存在则累加，否则插入新记录
+    INSERT INTO Salary (TeacherId, Month, TotalHours, TotalAmount)
+    VALUES (
+        NEW.TeacherId,
+        DATE_FORMAT(NEW.Date, '%Y-%m'),
+        v_hours,
+        v_hours * v_hourly_fee
+    )
+    ON DUPLICATE KEY UPDATE
+        TotalHours = TotalHours + v_hours,
+        TotalAmount = TotalAmount + (v_hours * v_hourly_fee);
+END//
+DELIMITER ;
+```
+
+------
+
+##### **2.2 UPDATE 触发器**
+
+当更新排课时，修正旧数据并累加新数据：
+
+```mysql
+DELIMITER //
+CREATE TRIGGER after_occupation_schedule_update
+AFTER UPDATE ON OccupationSchedule
+FOR EACH ROW
+BEGIN
+    DECLARE v_old_hours, v_new_hours DECIMAL(10,2);
+    DECLARE v_hourly_fee DECIMAL(10,2);
+    DECLARE v_month CHAR(7);
+    DECLARE v_total_hours DECIMAL(10,2);
+
+    -- 计算新旧课程时长
+    SET v_old_hours = TIME_TO_SEC(TIMEDIFF(OLD.EndTime, OLD.StartTime)) / 3600;
+    SET v_new_hours = TIME_TO_SEC(TIMEDIFF(NEW.EndTime, NEW.StartTime)) / 3600;
+
+    -- 获取当前费率和月份
+    SELECT HourlyFee INTO v_hourly_fee FROM Teacher WHERE TeacherId = NEW.TeacherId;
+    SET v_month = DATE_FORMAT(NEW.Date, '%Y-%m');
+
+    -- 查询当前总时长（带行锁）
+    SELECT TotalHours INTO v_total_hours
+    FROM Salary
+    WHERE TeacherId = NEW.TeacherId AND Month = v_month
+    FOR UPDATE;
+
+    -- 核心逻辑：处理记录存在性
+    IF v_total_hours IS NULL THEN
+        -- 场景1：无原记录，直接插入新数据
+        INSERT INTO Salary (TeacherId, Month, TotalHours, TotalAmount)
+        VALUES (NEW.TeacherId, v_month, v_new_hours, v_new_hours * v_hourly_fee);
+    ELSE
+        -- 场景2：有原记录，计算净变化
+        SET v_total_hours = v_total_hours - v_old_hours + v_new_hours;
+
+        -- 判断是否删除或更新
+        IF v_total_hours <= 0 THEN
+            DELETE FROM Salary
+            WHERE TeacherId = NEW.TeacherId AND Month = v_month;
+        ELSE
+            UPDATE Salary
+            SET
+                TotalHours = v_total_hours,
+                TotalAmount = v_total_hours * v_hourly_fee
+            WHERE
+                TeacherId = NEW.TeacherId
+                AND Month = v_month;
+        END IF;
+    END IF;
+END//
+DELIMITER ;
+```
+
+------
+
+##### **2.3 DELETE 触发器**
+
+当删除排课时，扣除对应教师的当月工资数据：
+
+```mysql
+DELIMITER //
+CREATE TRIGGER before_occupation_schedule_delete
+BEFORE DELETE ON OccupationSchedule
+FOR EACH ROW
+BEGIN
+    DECLARE v_old_hours DECIMAL(10,2);
+    DECLARE v_old_month CHAR(7);
+    DECLARE v_current_hours DECIMAL(10,2);
+
+    -- 计算被删除课程的时长和月份
+    SET v_old_hours = TIME_TO_SEC(TIMEDIFF(OLD.EndTime, OLD.StartTime)) / 3600;
+    SET v_old_month = DATE_FORMAT(OLD.Date, '%Y-%m');
+
+    -- 查询当前总时长
+    SELECT TotalHours INTO v_current_hours
+    FROM Salary
+    WHERE
+        TeacherId = OLD.TeacherId
+        AND Month = v_old_month;
+
+    -- 如果删除后总时长 ≤ 0，则直接删除工资记录
+    IF (v_current_hours - v_old_hours <= 0) THEN
+        DELETE FROM Salary
+        WHERE
+            TeacherId = OLD.TeacherId
+            AND Month = v_old_month;
+    ELSE
+        -- 否则更新工资记录
+        UPDATE Salary
+        SET
+            TotalHours = TotalHours - v_old_hours,
+            TotalAmount = TotalAmount - (v_old_hours * (SELECT HourlyFee FROM Teacher WHERE TeacherId = OLD.TeacherId))
+        WHERE
+            TeacherId = OLD.TeacherId
+            AND Month = v_old_month;
+    END IF;
+END//
+DELIMITER ;
+```
+
+------
+
+#### 7. 收费表 (Payment)
 
 ```mysql
 CREATE TABLE Payment (
     PaymentId INT PRIMARY KEY AUTO_INCREMENT,
     OccupationId INT NOT NULL,
     PaymentDate DATE NOT NULL,
-    Amount DECIMAL(10,2) NOT NULL CHECK (Amount > 0),
-    PaymentMethod VARCHAR(20) NOT NULL CHECK (PaymentMethod IN ('支付宝', '现金', '银行卡')),
-    Status ENUM('已支付', '未支付') NOT NULL DEFAULT '未支付',
-    FOREIGN KEY (OccupationId) REFERENCES OccupationRegistration(OccupationId)
+    Amount DECIMAL(10,2) NOT NULL DEFAULT 200.00,
+    FOREIGN KEY (OccupationId) REFERENCES OccupationRegistration(OccupationId) ON DELETE CASCADE
 );
 ```
-​	7.创建索引提高查询性能
+
+| 字段名       | 数据类型      | 主键/外键 | 允许空值 | 默认值 | 说明                       | 约束/备注                                      |
+| ------------ | ------------- | --------- | -------- | ------ | -------------------------- | ---------------------------------------------- |
+| PaymentId    | INT           | 主键      | 否       | 自增   | 收费记录唯一标识           | 自增主键                                       |
+| OccupationId | INT           | 外键      | 否       | -      | 关联的职业登记             | 外键引用 `OccupationRegistration` 表，级联删除 |
+| PaymentDate  | DATE          | -         | 否       | -      | 缴费日期（如`2023-10-02`） |                                                |
+| Amount       | DECIMAL(10,2) | -         | 否       | 200    | 缴费金额                   | 必须大于0                                      |
+
+为 `OccupationRegistration` 表创建 **AFTER INSERT 触发器**，自动生成收费记录：
+
+
+ ```mysql
+ -- 插入职业登记后的触发器
+ DELIMITER //
+ CREATE TRIGGER AfterOccupationRegistrationInsert
+ AFTER INSERT ON OccupationRegistration
+ FOR EACH ROW
+ BEGIN
+     -- 自动插入 Payment 记录
+     INSERT INTO Payment (OccupationId, PaymentDate, Amount)
+     VALUES (NEW.OccupationId, CURRENT_DATE(), 200.00);
+ END //
+ DELIMITER ;
+ ```
+----
+
+
+
+## 4. MySQL编写
+### 一、创建数据库
+
 ```mysql
--- 1. 教师表 (Teacher)
-CREATE INDEX idx_teacher_phone ON Teacher(Phone);  -- 按手机号快速查找教师
-
--- 2. 职业类型表 (OccupationType)
--- Name 字段已通过 UNIQUE 约束自动创建唯一索引，无需额外索引
-
--- 3. 职业登记表 (OccupationRegistration)
-CREATE INDEX idx_occupation_reg ON OccupationRegistration(OccupationTypeId);  -- 加速按职业类型筛选登记
-
--- 4. 职业作息表 (OccupationSchedule)
-CREATE INDEX idx_schedule_date ON OccupationSchedule(Date, TeacherId);  -- 按日期和教师查询排班
-CREATE INDEX idx_schedule_teacher ON OccupationSchedule(TeacherId);     -- 按教师统计排班
-
--- 5. 工资表 (Salary)
-CREATE INDEX idx_salary_payment ON Salary(TeacherId, PaymentDate);  -- 按教师和日期查工资
-
--- 6. 收费表 (Payment)
-CREATE INDEX idx_payment_date ON Payment(PaymentDate, Status);  -- 按日期和状态查缴费记录
-CREATE INDEX idx_payment_occupation ON Payment(OccupationId);  -- 按职业登记查关联费用
+CREATE DATABASE TutorServiceDB;
+USE TutorServiceDB;
 ```
+### 二、建表：见表结构定义处
+
+### 三、创建索引提高查询性能
+
+#### **1、索引设计原则**
+
+1. **触发器高频访问字段**：为触发器中的 `WHERE`、`JOIN` 或关联查询字段添加索引。
+
+2. **外键字段必加索引**：确保级联操作和关联查询效率。
+
+3. **范围查询字段**：为日期、时间等范围查询字段添加索引。   
+
+   ------
+   
+   ### **触发器相关字段的索引优化方案**
+   
+   ------
+   
+   #### **一、索引设计原则**
+   
+   1. **触发器高频访问字段**：为触发器中的 `WHERE`、`JOIN` 或关联查询字段添加索引。
+   2. **外键字段必加索引**：确保级联操作和关联查询效率。
+   3. **范围查询字段**：为日期、时间等范围查询字段添加索引。
+   
+   ------
+   
+   #### **二、具体索引方案**
+   
+   ------
+   
+   ##### **1. 职业登记表 (OccupationRegistration)**
+   
+   - **现有索引**：主键 `OccupationId`（自增）、外键 `OccupationTypeId` 和 `StudentId`。
+   - **无需新增索引**：触发器仅通过 `OccupationId` 插入 `Payment`，已通过主键覆盖。
+   
+   ------
+   
+   ##### **2. 职业作息表 (OccupationSchedule)**
+   
+   触发器 `AfterOccupationScheduleInsert/Update/Delete` 中涉及以下字段：
+   
+   - **`TeacherId`**（外键）、**`Date`**（日期）、**`StartTime`/`EndTime`**（时间计算）。
+   
+   **新增索引**：
+   
+   ```mysql
+   -- 外键索引（已存在）
+   CREATE INDEX idx_Schedule_TeacherId ON OccupationSchedule(TeacherId);
+   
+   -- 日期范围查询索引
+   CREATE INDEX idx_Schedule_Date ON OccupationSchedule(Date);
+   
+   -- 高频查询复合索引（教师 + 日期）
+   CREATE INDEX idx_Schedule_TeacherDate ON OccupationSchedule(TeacherId, Date);
+   ```
+   
+   **说明**：
+   
+   - `idx_Schedule_Date` 加速按日期筛选排课记录（如统计某月数据）。
+   - `idx_Schedule_TeacherDate` 优化按教师和日期范围的联合查询（如计算某教师某月工资）。
+   
+   ------
+   
+   ##### **3. 教师表 (Teacher)**
+   
+   触发器通过 `TeacherId` 获取 `HourlyFee`，已通过主键覆盖查询，无需额外索引。
+   
+   ------
+   
+   ##### **4. 工资表 (Salary)**
+   
+   触发器通过 `TeacherId` 和 `Month` 更新记录，联合主键已覆盖查询：
+   
+   ```mysql
+   -- 联合主键索引（已存在）
+   PRIMARY KEY (TeacherId, Month)
+   ```
+   
+   ------
+   
+   ##### **5. 收费表 (Payment)**
+   
+   触发器通过 `OccupationId` 插入记录，外键索引已存在：
+   
+   ```mysql
+   -- 外键索引（已存在）
+   CREATE INDEX idx_Payment_OccupationId ON Payment(OccupationId);
+   ```
 
 
 ## 5. 存储过程
@@ -240,6 +527,11 @@ CREATE PROCEDURE CalculateTeacherHours(
     IN end_date DATE
 )
 BEGIN
+	-- 校验日期顺序
+    IF start_date > end_date THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '开始日期不能晚于结束日期';
+    END IF;
     SELECT 
         os.TeacherId,
         t.Name AS TeacherName,
