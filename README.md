@@ -42,14 +42,15 @@
 
 ## 5.开发进度
 
-| 表名/存储过程          | 完成 |
-| ---------------------- | ---- |
-| Teacher                | ✔    |
-| OccupationType         | ✔    |
-| OccupationRegistration |      |
-| OccupationSchedule     | ✔    |
-| Salary                 |      |
-| Payment                |      |
-| TeacherHours           | ✔    |
-| OccupationDemand       | ✔    |
+| 表名/存储过程                 | 完成 |
+| ----------------------------- | ---- |
+| Teacher                       | ✔    |
+| OccupationType                | ✔    |
+| OccupationRegistration        |      |
+| OccupationSchedule            | ✔    |
+| Salary(不允许写，只允许读)    |      |
+| Payment（不允许写，只允许读） |      |
+| TeacherHours                  | ✔    |
+| OccupationDemand              | ✔    |
+| Student                       |      |
 
