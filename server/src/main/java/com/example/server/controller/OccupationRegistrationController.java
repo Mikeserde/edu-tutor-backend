@@ -19,6 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/occupation-registrations")
 @Tag(name = "职业注册管理", description = "学生职业注册管理接口")
+@CrossOrigin
 public class OccupationRegistrationController {
 
     @Autowired
@@ -26,45 +27,45 @@ public class OccupationRegistrationController {
 
     @Operation(summary = "创建职业注册")
     @PostMapping
-    public Result<OccupationRegistration> createRegistration(
+    public Result createRegistration(
             @Valid @RequestBody OccupationRegistration registration) {
         if (!registrationService.isRegistrationUnique(
                 registration.getOccupationTypeId(),
                 registration.getStudentId(),
                 null)) {
-            return Result.fail("该学生已注册此职业类型");
+            return Result.error().data("msg","该学生已注册此职业类型");
         }
         boolean saved = registrationService.save(registration);
-        return saved ? Result.success("创建成功", registration) : Result.fail("创建失败");
+        return saved ? Result.ok().data("创建成功", registration) : Result.error().data("msg","创建失败");
     }
 
     @Operation(summary = "更新职业注册")
     @PutMapping("/{id}")
-    public Result<OccupationRegistration> updateRegistration(
+    public Result updateRegistration(
             @PathVariable @NotNull(message = "ID不能为空") Integer id,
             @Valid @RequestBody OccupationRegistration registration) {
         if (!registrationService.isRegistrationUnique(
                 registration.getOccupationTypeId(),
                 registration.getStudentId(),
                 id)) {
-            return Result.fail("该学生已注册此职业类型");
+            return Result.error().data("msg","该学生已注册此职业类型");
         }
         registration.setOccupationId(id);
         boolean updated = registrationService.updateById(registration);
-        return updated ? Result.success("更新成功", registration) : Result.fail("更新失败");
+        return updated ? Result.ok().data("创建成功", registration) : Result.error().data("msg","创建失败");
     }
 
     @Operation(summary = "根据ID查询职业注册")
     @GetMapping("/{id}")
-    public Result<OccupationRegistration> getRegistrationById(
+    public Result getRegistrationById(
             @PathVariable @NotNull(message = "ID不能为空") Integer id) {
         OccupationRegistration registration = registrationService.getById(id);
-        return registration != null ? Result.success(registration) : Result.fail("注册记录不存在");
+        return registration != null ? Result.ok().data("查询成功",registration) : Result.error().data("查询失败","注册记录不存在");
     }
 
     @Operation(summary = "分页查询职业注册列表")
     @GetMapping
-    public Result<Page<OccupationRegistration>> getRegistrations(
+    public Result getRegistrations(
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize,
             @RequestParam(required = false) Integer occupationTypeId,
@@ -80,14 +81,14 @@ public class OccupationRegistrationController {
             wrapper.eq("StudentId", studentId);
         }
 
-        return Result.success(registrationService.page(page, wrapper));
+        return Result.ok().data("分页内容",registrationService.page(page, wrapper));
     }
 
     @Operation(summary = "根据ID删除职业注册")
     @DeleteMapping("/{id}")
-    public Result<String> deleteRegistration(
+    public Result deleteRegistration(
             @PathVariable @NotNull(message = "ID不能为空") Integer id) {
         boolean removed = registrationService.removeById(id);
-        return removed ? Result.success("删除成功") : Result.fail("删除失败");
+        return removed ? Result.ok().data("msg","删除成功") : Result.error().data("msg","删除失败");
     }
 }

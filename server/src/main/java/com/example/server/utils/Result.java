@@ -2,37 +2,58 @@ package com.example.server.utils;
 
 import lombok.Data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Data
-public class Result<T> {
-    private int code;
+public class Result{
+    private Boolean success;
+    private Integer code;
     private String message;
-    private T data;
+    private Map<String,Object> data = new HashMap<>();
+    //成功状态码
+    private static final int SUCCESS = 20000;
+    // 常规错误状态码
+    private static final int ERROR = 50008;
+    private Result(){}
 
-    // 成功（带数据）
-    public static <T> Result<T> success(T data) {
-        return success("操作成功", data);
+
+    //成功静态方法
+    public static Result ok(){
+        Result r = new Result();
+        r.setSuccess(true);
+        r.setCode(SUCCESS);
+        r.setMessage("成功");
+        return r;
+    }
+    //失败静态方法
+    public static Result error(){
+        Result r = new Result();
+        r.setSuccess(false);
+        r.setCode(ERROR);
+        r.setMessage("失败");
+        return r;
+    }
+    public Result success(Boolean success){
+        this.setSuccess(success);
+        return this;
     }
 
-    // 成功（带消息和数据）
-    public static <T> Result<T> success(String message, T data) {
-        Result<T> result = new Result<>();
-        result.code = 200;
-        result.message = message;
-        result.data = data;
-        return result;
+    public Result message(String message){
+        this.setMessage(message);
+        return this;
+    }
+    public Result code(Integer code){
+        this.setCode(code);
+        return this;
+    }
+    public Result data(String key,Object value){
+        this.data.put(key,value);
+        return this;
     }
 
-    // 成功（无数据）
-    public static Result<Void> success() {
-        return success(null);
-    }
-
-    // 失败（带消息）
-    public static <T> Result<T> fail(String message) {
-        Result<T> result = new Result<>();
-        result.code = 400;
-        result.message = message;
-        result.data = null;
-        return result;
+    public Result data(Map<String,Object> map){
+        this.setData(map);
+        return this;
     }
 }
