@@ -52,6 +52,12 @@ public class StudentController {
                 Result.error().message("更新失败");
     }
 
+    @GetMapping("/list-all")
+    public Result getAllStudents() {
+        List<Student> list = studentService.list();
+        return Result.ok().data("data", list);
+    }
+
     @Operation(summary = "根据ID查询学生")
     @GetMapping("/{id}")
     public Result getStudentById(

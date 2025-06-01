@@ -24,19 +24,7 @@ public class SalaryController {
 
     @Autowired
     private SalaryService salaryService;
-
-    @Operation(summary = "创建/更新工资记录")
-    @PostMapping
-    public Result saveOrUpdateSalary(@Valid @RequestBody Salary salary) {
-        boolean exists = salaryService.existsByTeacherAndMonth(salary.getTeacherId(), salary.getMonth());
-        boolean success = salaryService.saveOrUpdate(salary);
-        if (success) {
-            String message = exists ? "更新成功" : "创建成功";
-            return Result.ok().data("salary", salary).message(message);
-        }
-        return Result.error().message("操作失败");
-    }
-
+    
     @Operation(summary = "获取特定教师某月工资")
     @GetMapping("/{teacherId}/{month}")
     public Result getSalary(

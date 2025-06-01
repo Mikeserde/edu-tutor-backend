@@ -81,7 +81,7 @@ public class OccupationRegistrationController {
             wrapper.eq("StudentId", studentId);
         }
 
-        return Result.ok().data("分页内容",registrationService.page(page, wrapper));
+        return Result.ok().data("page",registrationService.page(page, wrapper));
     }
 
     @Operation(summary = "根据ID删除职业注册")

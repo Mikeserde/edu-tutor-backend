@@ -50,6 +50,12 @@ public class OccupationTypeController {
                 Result.error().message("更新失败");
     }
 
+    @GetMapping("/list-all")
+    public Result getAllOccupationTypes() {
+        List<OccupationType> list = occupationTypeService.list();
+        return Result.ok().data("data", list);
+    }
+
     @Operation(summary = "根据ID查询职业类型")
     @GetMapping("/{id}")
     public Result getOccupationTypeById(
