@@ -20,6 +20,7 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/occupation-schedules")
 @Tag(name = "职业排班管理", description = "职业排班管理接口")
+@CrossOrigin
 public class OccupationScheduleController {
 
     @Resource
@@ -27,39 +28,45 @@ public class OccupationScheduleController {
 
     @Operation(summary = "创建排班")
     @PostMapping
-    public Result<OccupationSchedule> createSchedule(@Valid @RequestBody OccupationSchedule schedule) {
+    public Result createSchedule(@Valid @RequestBody OccupationSchedule schedule) {
         if (scheduleService.checkTimeConflict(
                 schedule.getTeacherId(),
                 schedule.getDate(),
                 schedule.getStartTime(),
                 schedule.getEndTime())) {
-            return Result.fail("该时段已有排班冲突");
+            return Result.error().message("该时段已有排班冲突");
         }
         boolean saved = scheduleService.save(schedule);
-        return saved ? Result.success("创建成功", schedule) : Result.fail("创建失败");
+        return saved ?
+                Result.ok().message("创建成功").data("data", schedule) : // 数据使用明确字段名
+                Result.error().message("创建失败");
     }
 
     @Operation(summary = "更新排班信息")
     @PutMapping("/{id}")
-    public Result<OccupationSchedule> updateSchedule(
+    public Result updateSchedule(
             @PathVariable @NotNull(message = "ID不能为空") Integer id,
             @Valid @RequestBody OccupationSchedule schedule) {
         schedule.setScheduleId(id);
         boolean updated = scheduleService.updateById(schedule);
-        return updated ? Result.success("更新成功", schedule) : Result.fail("更新失败");
+        return updated ?
+                Result.ok().message("更新成功").data("data", schedule) :
+                Result.error().message("更新失败");
     }
 
     @Operation(summary = "根据ID查询排班")
     @GetMapping("/{id}")
-    public Result<OccupationSchedule> getScheduleById(
+    public Result getScheduleById(
             @PathVariable @NotNull(message = "ID不能为空") Integer id) {
         OccupationSchedule schedule = scheduleService.getById(id);
-        return schedule != null ? Result.success(schedule) : Result.fail("排班不存在");
+        return schedule != null ?
+                Result.ok().data("data", schedule) : // 数据字段统一命名
+                Result.error().message("排班不存在");
     }
 
     @Operation(summary = "分页查询排班列表")
     @GetMapping
-    public Result<Page<OccupationSchedule>> getSchedules(
+    public Result getSchedules(
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize,
             @RequestParam(required = false) Integer teacherId,
@@ -73,14 +80,16 @@ public class OccupationScheduleController {
         if (date != null) {
             wrapper.eq("Date", LocalDate.parse(date));
         }
-        return Result.success(scheduleService.page(page, wrapper));
+        return Result.ok().data("page", scheduleService.page(page, wrapper));
     }
 
     @Operation(summary = "删除排班")
     @DeleteMapping("/{id}")
-    public Result<Void> deleteSchedule(
+    public Result deleteSchedule(
             @PathVariable @NotNull(message = "ID不能为空") Integer id) {
         boolean removed = scheduleService.removeById(id);
-        return removed ? Result.success("删除成功", null) : Result.fail("删除失败");
+        return removed ?
+                Result.ok().message("删除成功") : // 无数据时可省略data
+                Result.error().message("删除失败");
     }
 }

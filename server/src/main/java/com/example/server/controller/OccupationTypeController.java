@@ -23,6 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/occupation-types")
 @Tag(name = "职业类型管理", description = "职业类型管理接口")
+@CrossOrigin
 public class OccupationTypeController {
 
     @Resource
@@ -30,32 +31,38 @@ public class OccupationTypeController {
 
     @Operation(summary = "创建职业类型")
     @PostMapping
-    public Result<OccupationType> createOccupationType(@Valid @RequestBody OccupationType occupationType) {
+    public Result createOccupationType(@Valid @RequestBody OccupationType occupationType) {
         boolean saved = occupationTypeService.save(occupationType);
-        return saved ? Result.success("创建成功", occupationType) : Result.fail("创建失败");
+        return saved ?
+                Result.ok().message("创建成功").data("data", occupationType) :
+                Result.error().message("创建失败");
     }
 
     @Operation(summary = "根据ID更新职业类型")
     @PutMapping("/{id}")
-    public Result<OccupationType> updateOccupationType(
+    public Result updateOccupationType(
             @PathVariable @NotNull(message = "ID不能为空") Integer id,
             @Valid @RequestBody OccupationType occupationType) {
         occupationType.setOccupationTypeId(id);
         boolean updated = occupationTypeService.updateById(occupationType);
-        return updated ? Result.success("更新成功", occupationType) : Result.fail("更新失败");
+        return updated ?
+                Result.ok().message("更新成功").data("data", occupationType) :
+                Result.error().message("更新失败");
     }
 
     @Operation(summary = "根据ID查询职业类型")
     @GetMapping("/{id}")
-    public Result<OccupationType> getOccupationTypeById(
+    public Result getOccupationTypeById(
             @PathVariable @NotNull(message = "ID不能为空") Integer id) {
         OccupationType occupationType = occupationTypeService.getById(id);
-        return occupationType != null ? Result.success(occupationType) : Result.fail("职业类型不存在");
+        return occupationType != null ?
+                Result.ok().data("data", occupationType) :
+                Result.error().message("职业类型不存在");
     }
 
     @Operation(summary = "分页查询职业类型列表")
     @GetMapping
-    public Result<Page<OccupationType>> getOccupationTypes(
+    public Result getOccupationTypes(
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize,
             @RequestParam(required = false) String name) {
@@ -65,14 +72,16 @@ public class OccupationTypeController {
         if (name != null && !name.isEmpty()) {
             wrapper.like("Name", name);
         }
-        return Result.success(occupationTypeService.page(page, wrapper));
+        return Result.ok().data("page", occupationTypeService.page(page, wrapper));
     }
 
     @Operation(summary = "根据ID删除职业类型")
     @DeleteMapping("/{id}")
-    public Result<Void> deleteOccupationType(
+    public Result deleteOccupationType(
             @PathVariable @NotNull(message = "ID不能为空") Integer id) {
         boolean removed = occupationTypeService.removeById(id);
-        return removed ? Result.success("删除成功", null) : Result.fail("删除失败");
+        return removed ?
+                Result.ok().message("删除成功") :
+                Result.error().message("删除失败");
     }
 }
