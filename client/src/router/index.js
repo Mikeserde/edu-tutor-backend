@@ -56,111 +56,6 @@ export const constantRoutes = [
   },
 
   {
-    path: '/example',
-    component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'el-icon-s-help' },
-    children: [
-      {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
-      },
-      {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
-      }
-    ]
-  },
-
-  {
-    path: '/form',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
-      }
-    ]
-  },
-
-  {
-    path: '/nested',
-    component: Layout,
-    redirect: '/nested/menu1',
-    name: 'Nested',
-    meta: {
-      title: 'Nested',
-      icon: 'nested'
-    },
-    children: [
-      {
-        path: 'menu1',
-        component: () => import('@/views/nested/menu1/index'), // Parent router-view
-        name: 'Menu1',
-        meta: { title: 'Menu1' },
-        children: [
-          {
-            path: 'menu1-1',
-            component: () => import('@/views/nested/menu1/menu1-1'),
-            name: 'Menu1-1',
-            meta: { title: 'Menu1-1' }
-          },
-          {
-            path: 'menu1-2',
-            component: () => import('@/views/nested/menu1/menu1-2'),
-            name: 'Menu1-2',
-            meta: { title: 'Menu1-2' },
-            children: [
-              {
-                path: 'menu1-2-1',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1'),
-                name: 'Menu1-2-1',
-                meta: { title: 'Menu1-2-1' }
-              },
-              {
-                path: 'menu1-2-2',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-2'),
-                name: 'Menu1-2-2',
-                meta: { title: 'Menu1-2-2' }
-              }
-            ]
-          },
-          {
-            path: 'menu1-3',
-            component: () => import('@/views/nested/menu1/menu1-3'),
-            name: 'Menu1-3',
-            meta: { title: 'Menu1-3' }
-          }
-        ]
-      },
-      {
-        path: 'menu2',
-        component: () => import('@/views/nested/menu2/index'),
-        name: 'Menu2',
-        meta: { title: 'menu2' }
-      }
-    ]
-  },
-
-  {
-    path: 'external-link',
-    component: Layout,
-    children: [
-      {
-        path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
-        meta: { title: 'External Link', icon: 'link' }
-      }
-    ]
-  },
-
-  {
     path: '/teachers',
     component: Layout, // 使用Layout作为父组件
     redirect: '/teachers/list', // 可选的重定向
@@ -176,6 +71,63 @@ export const constantRoutes = [
         component: () => import('@/views/teacher/index'),
         name: 'TeacherList',
         meta: { title: '教师列表', icon: 'list' }
+      }
+    ]
+  },
+  {
+    path: '/students',
+    component: Layout,
+    redirect: '/students/list',
+    name: 'StudentManagement',
+    meta: {
+      title: '学生管理',
+      icon: 'el-icon-user-solid',
+      roles: ['admin', 'manager']
+    },
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/student/index'),
+        name: 'StudentList',
+        meta: { title: '学生列表', icon: 'list' }
+      }
+    ]
+  },
+  {
+    path: '/occupation-types',
+    component: Layout,
+    redirect: '/occupation-types/list',
+    name: 'OccupationTypeManagement',
+    meta: {
+      title: '职业类型管理',
+      icon: 'el-icon-briefcase',
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/occupationType/index'),
+        name: 'OccupationTypeList',
+        meta: { title: '职业类型列表', icon: 'list' }
+      }
+    ]
+  },
+  {
+    path: '/occupation-registrations',
+    component: Layout,
+    redirect: '/occupation-registrations/list',
+    name: 'OccupationRegistrationManagement',
+    meta: {
+      title: '职业注册管理',
+      icon: 'el-icon-notebook-2',
+      roles: ['admin', 'manager']
+    },
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/occupationRegistration/index'),
+        name: 'OccupationRegistrationList',
+        meta: { title: '职业注册列表', icon: 'list' }
       }
     ]
   },

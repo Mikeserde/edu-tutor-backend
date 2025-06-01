@@ -45,7 +45,7 @@ export function parseTime(time, cFormat) {
   const time_str = format.replace(/{([ymdhisa])+}/g, (result, key) => {
     const value = formatObj[key]
     // Note: getDay() returns 0 on Sunday
-    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value ] }
+    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value] }
     return value.toString().padStart(2, '0')
   })
   return time_str
@@ -114,4 +114,30 @@ export function param2Obj(url) {
     }
   })
   return obj
+}
+
+
+/**
+ * 格式化电话号码显示
+ * @param {string} phone - 原始电话号码
+ * @returns {string} 格式化后的电话号码
+ */
+export function formatPhone(phone) {
+  if (!phone) return '';
+
+  // 移除所有非数字字符
+  const cleaned = phone.replace(/\D/g, '');
+
+  // 手机号格式化
+  if (cleaned.length === 11) {
+    return cleaned.replace(/(\d{3})(\d{4})(\d{4})/, '$1 $2 $3');
+  }
+
+  // 固号格式化 (假设10位固话格式：区号-号码)
+  if (cleaned.length === 10) {
+    return cleaned.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+  }
+
+  // 其他格式直接返回原值
+  return phone;
 }

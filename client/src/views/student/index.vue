@@ -3,19 +3,20 @@
     <!-- 工具栏 -->
     <div class="filter-container">
       <el-button type="primary" icon="el-icon-plus" @click="handleCreate">
-        新建教师
+        新建学生
       </el-button>
 
+      <!-- 搜索区域 -->
       <el-input
         v-model="listQuery.name"
-        placeholder="搜索教师姓名"
+        placeholder="搜索学生姓名"
         class="filter-item"
         style="width: 200px; margin-left: 15px"
         @keyup.enter.native="handleFilter"
       />
     </div>
 
-    <!-- 教师数据表格  -->
+    <!-- 学生数据表格 -->
     <el-table
       v-loading="listLoading"
       :data="formattedList"
@@ -24,36 +25,28 @@
       fit
       highlight-current-row
       style="width: 100%; margin-top: 20px"
-      class="teacher-table"
-      ref="teacherTable"
+      class="student-table"
+      ref="studentTable"
     >
       <!-- ID列 -->
       <el-table-column
-        prop="teacherId"
+        prop="studentId"
         align="center"
         label="ID"
-        min-width="90"
+        width="90"
         sortable
-      >
-        <template slot-scope="scope">
-          <span>{{ scope.row.teacherId }}</span>
-        </template>
-      </el-table-column>
+      />
 
       <!-- 姓名列 -->
-      <el-table-column prop="name" label="姓名" align="center" min-width="120">
-        <template slot-scope="scope">
-          <span>{{ scope.row.name }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column
+        prop="name"
+        label="姓名"
+        align="center"
+        min-width="120"
+      />
 
       <!-- 性别列 -->
-      <el-table-column
-        prop="gender"
-        label="性别"
-        align="center"
-        min-width="100"
-      >
+      <el-table-column prop="gender" label="性别" align="center" width="100">
         <template slot-scope="scope">
           <el-tag
             :type="scope.row.gender === '男' ? 'primary' : 'danger'"
@@ -64,31 +57,38 @@
         </template>
       </el-table-column>
 
-      <!-- 联系方式 -->
+      <!-- 联系电话 -->
       <el-table-column
-        prop="phone"
-        label="联系方式"
-        align="center"
-        min-width="140"
-      >
-        <template slot-scope="scope">
-          {{ formatPhone(scope.row.phone) }}
-        </template>
-      </el-table-column>
-
-      <!-- 课时费 -->
-      <el-table-column
-        prop="hourlyFee"
-        label="课时费（元/小时）"
+        prop="contactPhone"
+        label="联系电话"
         align="center"
         min-width="150"
       >
         <template slot-scope="scope">
-          <span class="fee-cell">¥ {{ scope.row.hourlyFee.toFixed(2) }}</span>
+          {{ formatPhone(scope.row.contactPhone) }}
         </template>
       </el-table-column>
 
-      <!-- 操作列固定宽度 -->
+      <!-- 地址列 -->
+      <el-table-column
+        prop="address"
+        label="地址"
+        align="center"
+        min-width="180"
+        show-overflow-tooltip
+      >
+        <template slot-scope="scope">
+          <el-tooltip
+            effect="light"
+            :content="scope.row.address"
+            placement="top"
+          >
+            <span>{{ scope.row.address }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+
+      <!-- 操作列 -->
       <el-table-column align="center" label="操作" width="180" fixed="right">
         <template slot-scope="scope">
           <div class="action-cell">
@@ -126,10 +126,10 @@
       style="margin-top: 20px; text-align: left"
     />
 
-    <!-- 教师编辑/新建弹窗 -->
-    <teacher-dialog
+    <!-- 学生编辑/新建弹窗 -->
+    <student-dialog
       :visible.sync="dialogVisible"
-      :teacher-data="currentTeacher"
+      :student-data="currentStudent"
       :dialog-type="dialogType"
       @refresh="handleRefresh"
     />
@@ -137,12 +137,12 @@
 </template>
 
 <script>
-import { getTeachers, deleteTeacher } from "@/api/teacher";
-import TeacherDialog from "@/components/TeacherDialog";
+import { getStudents, deleteStudent } from "@/api/student";
+import StudentDialog from "@/components/StudentDialog";
 import { formatPhone } from "@/utils";
 export default {
-  name: "TeacherList",
-  components: { TeacherDialog },
+  name: "StudentList",
+  components: { StudentDialog },
   data() {
     return {
       rawList: [], // 原始数据
@@ -152,30 +152,27 @@ export default {
         page: 1, // 当前页码
         limit: 10, // 每页条数
         name: null, // 搜索姓名
+        gender: null, // 性别筛选
       },
       dialogVisible: false, // 弹窗显示状态
       dialogType: "create", // 弹窗类型
-      currentTeacher: {}, // 当前操作的教师数据
+      currentStudent: {}, // 当前操作的学生数据
     };
   },
   computed: {
     // 确保数据格式正确
     formattedList() {
-      return this.rawList.map((teacher) => ({
-        teacherId: teacher.teacherId,
-        name: teacher.name,
-        gender: teacher.gender,
-        phone: teacher.phone,
-        // 确保hourlyFee为数字类型
-        hourlyFee:
-          typeof teacher.hourlyFee === "number"
-            ? teacher.hourlyFee
-            : parseFloat(teacher.hourlyFee) || 0,
+      return this.rawList.map((student) => ({
+        studentId: student.studentId,
+        name: student.name,
+        gender: student.gender,
+        contactPhone: student.contactPhone,
+        address: student.address,
       }));
     },
   },
   mounted() {
-    // 如果表格渲染后仍然有空白区域，可手动触发重排
+    // 添加窗口大小变化监听
     this.$nextTick(() => {
       window.addEventListener("resize", this.doLayout);
     });
@@ -188,62 +185,15 @@ export default {
   },
   methods: {
     formatPhone,
-    // 处理刷新和关闭弹窗的方法
+    // 刷新数据
     handleRefresh() {
-      this.dialogVisible = false; // 关闭弹窗
-      this.fetchData(); // 刷新数据
+      this.dialogVisible = false;
+      this.fetchData();
     },
+
     // 触发表格重新布局
     doLayout() {
-      this.$refs.teacherTable.doLayout();
-    },
-
-    // 获取教师列表数据
-    fetchData() {
-      this.listLoading = true;
-
-      const params = {
-        pageNum: this.listQuery.page,
-        pageSize: this.listQuery.limit,
-        name: this.listQuery.name,
-      };
-
-      getTeachers(params)
-        .then((response) => {
-          if (response.code === 20000) {
-            const pageData = response.data.page;
-            // 计算总页数
-            this.totalPages = Math.max(
-              1, // 至少1页
-              Math.ceil(pageData.total / this.listQuery.limit)
-            );
-
-            // 自动修复页码：如果请求的页码大于总页数，则跳转到最后一页
-            if (this.listQuery.page > this.totalPages && this.totalPages > 0) {
-              this.listQuery.page = this.totalPages;
-              this.$nextTick(() => {
-                this.fetchData();
-              });
-              return; // 提前返回，下一轮请求会再次执行
-            }
-            // 重要：使用深度拷贝确保Vue检测到变化
-            this.rawList = [...response.data.page.records];
-            this.total = response.data.page.total;
-            // 数据加载后重新布局表格
-            this.$nextTick(() => {
-              this.doLayout();
-            });
-          } else {
-            // 使用后端返回的message信息
-            this.$message.error(response.message || "获取教师列表失败");
-          }
-          this.listLoading = false;
-        })
-        .catch((error) => {
-          this.listLoading = false;
-          console.error("获取教师列表失败:", error);
-          this.$message.error("获取教师列表失败");
-        });
+      this.$refs.studentTable.doLayout();
     },
 
     // 页容量变化处理
@@ -264,39 +214,89 @@ export default {
       this.fetchData();
     },
 
-    // 打开新建教师弹窗
+    // 打开新建学生弹窗
     handleCreate() {
       this.dialogType = "create";
-      this.currentTeacher = {};
+      this.currentStudent = {};
       this.dialogVisible = true;
     },
 
-    // 打开编辑教师弹窗
+    // 打开编辑学生弹窗
     handleEdit(row) {
       this.dialogType = "edit";
-      this.currentTeacher = { ...row };
+      this.currentStudent = { ...row };
       this.dialogVisible = true;
     },
 
-    // 删除教师处理
+    // 获取学生列表数据（带自动页码修复）
+    fetchData() {
+      this.listLoading = true;
+
+      const params = {
+        pageNum: this.listQuery.page,
+        pageSize: this.listQuery.limit,
+        name: this.listQuery.name,
+        gender: this.listQuery.gender,
+        grade: this.listQuery.grade,
+      };
+
+      getStudents(params)
+        .then((response) => {
+          if (response.code === 20000) {
+            const pageData = response.data.page;
+
+            // 计算总页数
+            this.totalPages = Math.max(
+              1, // 至少1页
+              Math.ceil(pageData.total / this.listQuery.limit)
+            );
+
+            // 自动修复页码：如果请求的页码大于总页数，则跳转到最后一页
+            if (this.listQuery.page > this.totalPages && this.totalPages > 0) {
+              this.listQuery.page = this.totalPages;
+              this.$nextTick(() => {
+                this.fetchData();
+              });
+              return; // 提前返回，下一轮请求会再次执行
+            }
+
+            // 正常处理数据
+            this.rawList = [...pageData.records];
+            this.total = pageData.total;
+            this.$nextTick(this.doLayout);
+          } else {
+            this.$message.error(response.message || "获取学生列表失败");
+          }
+          this.listLoading = false;
+        })
+        .catch((error) => {
+          this.listLoading = false;
+          console.error("获取学生列表失败:", error);
+          this.$message.error("获取学生列表失败");
+        });
+    },
+
+    // 删除学生处理（带页码优化）
     handleDelete(row) {
-      this.$confirm(`确定删除教师 ${row.name} 吗？`, "删除确认", {
+      this.$confirm(`确定删除学生 ${row.name} 吗？`, "删除确认", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
       })
         .then(() => {
-          return deleteTeacher(row.teacherId);
+          return deleteStudent(row.studentId);
         })
         .then((response) => {
-          // 这里也要使用20000状态码
           if (response.code === 20000) {
             this.$message.success("删除成功");
+
             // 删除后判断：如果删除的是当前页的最后一条数据
             if (this.rawList.length === 1 && this.listQuery.page > 1) {
               // 跳转到前一页
               this.listQuery.page -= 1;
             }
+
+            // 重新加载数据
             this.fetchData();
           } else {
             this.$message.error(response.message || "删除失败");
@@ -314,6 +314,7 @@ export default {
 </script>
 
 <style scoped>
+/* 复用教师管理样式 */
 .filter-container {
   display: flex;
   align-items: center;
@@ -328,11 +329,10 @@ export default {
   margin-left: 10px;
 }
 
-.teacher-table {
+.student-table {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* 解决表格空白问题 */
 .el-table {
   width: 100% !important;
 }
@@ -341,29 +341,17 @@ export default {
   width: 100% !important;
 }
 
-.el-table::after {
-  display: none;
-}
-
-.el-table::before {
-  display: none;
-}
-
-/* 确保表格内容完全显示 */
-.el-table .cell {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.fee-cell {
-  font-weight: 600;
-  color: #f56c6c;
-}
-
 .action-cell {
   display: flex;
   justify-content: center;
   gap: 8px;
+}
+
+/* 地址单元格样式 */
+.address-cell {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
