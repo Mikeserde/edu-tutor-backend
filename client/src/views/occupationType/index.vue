@@ -272,7 +272,6 @@ export default {
 </script>
 
 <style scoped>
-/* 复用教师管理样式 */
 .filter-container {
   display: flex;
   align-items: center;

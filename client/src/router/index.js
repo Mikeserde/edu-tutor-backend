@@ -49,9 +49,9 @@ export const constantRoutes = [
     redirect: '/dashboard',
     children: [{
       path: 'dashboard',
-      name: 'Dashboard',
+      name: '主页',
       component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Dashboard', icon: 'dashboard' }
+      meta: { title: '主页', icon: 'dashboard' }
     }]
   },
 
@@ -62,7 +62,6 @@ export const constantRoutes = [
     name: 'TeacherManagement',
     meta: {
       title: '教师管理',
-      icon: 'el-icon-user',
       roles: ['admin', 'editor'] // 根据需要添加角色限制
     },
     children: [
@@ -70,7 +69,7 @@ export const constantRoutes = [
         path: 'list',
         component: () => import('@/views/teacher/index'),
         name: 'TeacherList',
-        meta: { title: '教师列表', icon: 'list' }
+        meta: { title: '教师管理', icon: 'el-icon-user' }
       }
     ]
   },
@@ -81,15 +80,14 @@ export const constantRoutes = [
     name: 'StudentManagement',
     meta: {
       title: '学生管理',
-      icon: 'el-icon-user-solid',
-      roles: ['admin', 'manager']
+      roles: ['admin', 'editor'] // 根据需要添加角色限制
     },
     children: [
       {
         path: 'list',
         component: () => import('@/views/student/index'),
         name: 'StudentList',
-        meta: { title: '学生列表', icon: 'list' }
+        meta: { title: '学生管理', icon: 'el-icon-user-solid' }
       }
     ]
   },
@@ -100,15 +98,14 @@ export const constantRoutes = [
     name: 'OccupationTypeManagement',
     meta: {
       title: '职业类型管理',
-      icon: 'el-icon-briefcase',
-      roles: ['admin']
+      roles: ['admin', 'editor'] // 根据需要添加角色限制
     },
     children: [
       {
         path: 'list',
         component: () => import('@/views/occupationType/index'),
         name: 'OccupationTypeList',
-        meta: { title: '职业类型列表', icon: 'list' }
+        meta: { title: '职业类型管理', icon: 'el-icon-tickets' }
       }
     ]
   },
@@ -119,15 +116,51 @@ export const constantRoutes = [
     name: 'OccupationRegistrationManagement',
     meta: {
       title: '职业注册管理',
-      icon: 'el-icon-notebook-2',
-      roles: ['admin', 'manager']
+      roles: ['admin', 'editor'] // 根据需要添加角色限制
     },
     children: [
       {
         path: 'list',
         component: () => import('@/views/occupationRegistration/index'),
         name: 'OccupationRegistrationList',
-        meta: { title: '职业注册列表', icon: 'list' }
+        meta: { title: '职业注册管理', icon: 'el-icon-notebook-2' }
+      }
+    ]
+  },
+  {
+    path: '/occupation-schedules',
+    component: Layout,
+    redirect: '/occupation-schedules/list',
+    name: 'OccupationScheduleManagement',
+    meta: {
+      title: '职业排班管理',
+      icon: 'el-icon-date',
+      roles: ['admin', 'editor'] // 根据需要添加角色限制
+    },
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/occupationSchedule/index'),
+        name: 'OccupationScheduleList',
+        meta: { title: '职业排班管理', icon: 'el-icon-date' }
+      }
+    ]
+  },
+  {
+    path: '/salary',
+    component: Layout,
+    redirect: '/salary/list',
+    name: 'Salary',
+    meta: {
+      title: '工资管理',
+      roles: ['admin', 'editor']
+    },
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/salary/index'),
+        name: 'SalaryList',
+        meta: { title: '工资管理', icon: 'el-icon-money' }
       }
     ]
   },

@@ -1,27 +1,23 @@
 <template>
   <div class="app-container">
-    <!-- 顶部导航和标题 -->
-    <div class="page-header">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item :to="{ path: '/dashboard' }"
-          >Dashboard</el-breadcrumb-item
-        >
-        <el-breadcrumb-item>职业注册管理</el-breadcrumb-item>
-        <el-breadcrumb-item>职业注册列表</el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
-
-    <!-- 过滤区域 -->
+    <!-- 过滤区域 - 使用统一样式 -->
     <div class="filter-container">
-      <el-button type="primary" icon="el-icon-plus" @click="handleCreate">
-        + 新建职业注册
+      <el-button
+        type="primary"
+        icon="el-icon-plus"
+        class="filter-item"
+        @click="handleCreate"
+      >
+        新建职业注册
       </el-button>
 
+      <!-- 筛选组 -->
       <div class="filter-group">
         <el-select
           v-model="listQuery.occupationTypeId"
           placeholder="选择职业类型"
           clearable
+          class="filter-item"
           style="width: 200px; margin-left: 15px"
         >
           <el-option
@@ -36,6 +32,7 @@
           v-model="listQuery.studentId"
           placeholder="选择学生"
           clearable
+          class="filter-item"
           style="width: 220px; margin-left: 15px"
         >
           <el-option
@@ -48,6 +45,7 @@
 
         <el-button
           type="primary"
+          class="filter-item"
           style="margin-left: 15px"
           @click="handleFilter"
         >
@@ -56,19 +54,23 @@
       </div>
     </div>
 
-    <!-- 数据表格 -->
+    <!-- 数据表格 - 使用统一data-table样式 -->
     <el-table
       :data="formattedList"
       v-loading="listLoading"
       border
       fit
+      highlight-current-row
+      class="data-table"
+      element-loading-text="数据加载中"
       style="width: 100%"
+      ref="occupationTable"
     >
       <!-- 注册ID -->
       <el-table-column
         prop="occupationId"
         label="注册ID"
-        width="120"
+        min-width="100"
         align="center"
         sortable
       />
@@ -93,7 +95,12 @@
       </el-table-column>
 
       <!-- 操作 -->
-      <el-table-column label="操作" width="180" align="center" fixed="right">
+      <el-table-column
+        label="操作"
+        min-width="180"
+        align="center"
+        fixed="right"
+      >
         <template slot-scope="{ row }">
           <el-button size="mini" type="primary" @click="handleEdit(row)">
             编辑
@@ -105,7 +112,7 @@
       </el-table-column>
     </el-table>
 
-    <!-- 分页组件 -->
+    <!-- 分页组件 - 与教师管理页面统一 -->
     <el-pagination
       background
       :current-page="listQuery.page"
@@ -115,7 +122,7 @@
       :total="total"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
-      style="margin-top: 20px; text-align: right"
+      style="margin-top: 20px; text-align: left"
     />
 
     <!-- 新建/编辑对话框 -->
@@ -181,9 +188,20 @@ export default {
     // 初始加载所有数据
     this.loadOptions();
     this.fetchData();
+    // 添加窗口大小监听
+    window.addEventListener("resize", this.doLayout);
+  },
+
+  beforeDestroy() {
+    window.removeEventListener("resize", this.doLayout);
   },
 
   methods: {
+    // 触发表格重新布局
+    doLayout() {
+      this.$refs.occupationTable.doLayout();
+    },
+
     // 加载所有选项数据
     async loadOptions() {
       try {
@@ -260,6 +278,9 @@ export default {
         this.$message.error("获取数据失败: " + (error.message || "请稍后重试"));
       } finally {
         this.listLoading = false;
+        this.$nextTick(() => {
+          this.doLayout();
+        });
       }
     },
 
@@ -334,41 +355,72 @@ export default {
 </script>
 
 <style scoped>
+/* 整体布局 - 与教师管理页面完全一致 */
 .app-container {
   padding: 20px;
-  background-color: #fff;
 }
 
-.page-header {
+.breadcrumb {
   margin-bottom: 20px;
 }
 
+/* 搜索区样式统一 */
 .filter-container {
   display: flex;
   align-items: center;
+  padding: 15px;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
 
+.filter-item {
+  margin-right: 10px;
+}
+
+/* 内部筛选组 */
 .filter-group {
   display: flex;
   margin-left: auto;
+  flex-wrap: wrap;
 }
 
+/* 表格样式统一 */
+.data-table {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-top: 0;
+}
+
+/* 解决表格空白问题 */
+.el-table {
+  width: 100% !important;
+}
+
+.el-table__body {
+  width: 100% !important;
+}
+
+/* 学生信息样式 */
 .student-info {
   line-height: 1.5;
+  text-align: center;
+  padding: 5px 0;
 }
 
 .student-name {
   font-weight: bold;
   color: #333;
+  font-size: 14px;
 }
 
 .student-id {
   font-size: 12px;
-  color: #999;
+  color: #666;
 }
 
-.el-table {
-  margin-top: 20px;
+/* 分页左对齐 */
+.el-pagination {
+  justify-content: flex-start !important;
 }
 </style>
