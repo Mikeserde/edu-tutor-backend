@@ -12,19 +12,22 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Validated
 @RestController
 @RequestMapping("/salaries")
 @Tag(name = "工资管理", description = "教师工资管理接口")
+@CrossOrigin
 public class SalaryController {
 
     @Autowired
     private SalaryService salaryService;
-    
+
     @Operation(summary = "获取特定教师某月工资")
     @GetMapping("/{teacherId}/{month}")
     public Result getSalary(
@@ -65,6 +68,5 @@ public class SalaryController {
 
         return Result.ok().data("page", salaryService.page(page, wrapper));
     }
-
 
 }
