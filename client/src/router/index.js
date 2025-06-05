@@ -46,12 +46,15 @@ export const constantRoutes = [
   {
     path: '/',
     component: Layout,
-    redirect: '/dashboard',
+    redirect: '/home',
     children: [{
-      path: 'dashboard',
-      name: '主页',
-      component: () => import('@/views/dashboard/index'),
-      meta: { title: '主页', icon: 'dashboard' }
+      path: 'home',
+      name: 'home',
+      component: () => import('@/views/home/index'),
+      meta: {
+        title: '主页',
+        icon: 'el-icon-s-home',
+      }
     }]
   },
 
@@ -60,10 +63,6 @@ export const constantRoutes = [
     component: Layout, // 使用Layout作为父组件
     redirect: '/teachers/list', // 可选的重定向
     name: 'TeacherManagement',
-    meta: {
-      title: '教师管理',
-      roles: ['admin', 'editor'] // 根据需要添加角色限制
-    },
     children: [
       {
         path: 'list',
@@ -78,10 +77,6 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/students/list',
     name: 'StudentManagement',
-    meta: {
-      title: '学生管理',
-      roles: ['admin', 'editor'] // 根据需要添加角色限制
-    },
     children: [
       {
         path: 'list',
@@ -96,10 +91,6 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/occupation-types/list',
     name: 'OccupationTypeManagement',
-    meta: {
-      title: '职业类型管理',
-      roles: ['admin', 'editor'] // 根据需要添加角色限制
-    },
     children: [
       {
         path: 'list',
@@ -114,10 +105,6 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/occupation-registrations/list',
     name: 'OccupationRegistrationManagement',
-    meta: {
-      title: '职业注册管理',
-      roles: ['admin', 'editor'] // 根据需要添加角色限制
-    },
     children: [
       {
         path: 'list',
@@ -132,11 +119,6 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/occupation-schedules/list',
     name: 'OccupationScheduleManagement',
-    meta: {
-      title: '职业排班管理',
-      icon: 'el-icon-date',
-      roles: ['admin', 'editor'] // 根据需要添加角色限制
-    },
     children: [
       {
         path: 'list',
@@ -151,16 +133,56 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/salary/list',
     name: 'Salary',
-    meta: {
-      title: '工资管理',
-      roles: ['admin', 'editor']
-    },
     children: [
       {
         path: 'list',
         component: () => import('@/views/salary/index'),
         name: 'SalaryList',
         meta: { title: '工资管理', icon: 'el-icon-money' }
+      }
+    ]
+  },
+  {
+    path: '/payments',
+    component: Layout,
+    redirect: '/payments/list',
+    name: 'Payments',
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/payment/index'),
+        name: 'PaymentList',
+        meta: { title: '支付记录管理', icon: 'el-icon-wallet' }
+      }
+    ]
+  },
+  {
+    path: '/reports',
+    component: Layout,
+    redirect: '/reports/teacher-hours',
+    name: 'Reports',
+    meta: {
+      title: '统计报表',
+      icon: 'el-icon-s-data'
+    },
+    children: [
+      {
+        path: 'teacher-hours',
+        component: () => import('@/views/report/TeacherHours'),
+        name: 'TeacherHoursReport',
+        meta: {
+          title: '教师工时统计',
+          icon: 'el-icon-time'
+        }
+      },
+      {
+        path: 'occupation-demand',
+        component: () => import('@/views/report/OccupationDemand'),
+        name: 'OccupationDemandReport',
+        meta: {
+          title: '职业需求统计',
+          icon: 'el-icon-s-marketing'
+        }
       }
     ]
   },
