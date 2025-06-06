@@ -62,3 +62,26 @@
 6. 创建存储过程统计各种职业的需求次数；
 7. 创建 check 约束限制教师性别必须输入‘男 ’或‘女 ’；
 8. 具有数据备份和数据恢复功能。
+
+## 5. 使用方法
+先按照dev-db分支创建好数据库后再执行下面的操作
+
+1. 创建一个空文件夹，克隆仓库
+
+	```
+git clone https://github.com/Mikeserde/edu-tutor-backend.git
+	```
+
+2. 进入仓库目录，打开命令行启动后端
+
+   ```
+   java -jar ./server-0.0.1-SNAPSHOT.jar
+   ```
+
+3. 进入dist目录，打开命令行
+	```
+	//全局安装本地访问插件
+	npm install -g serve
+	//启动前端
+	npm run dev
+	```
