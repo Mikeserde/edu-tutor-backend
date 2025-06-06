@@ -80,8 +80,8 @@ git clone https://github.com/Mikeserde/edu-tutor-backend.git
 
 3. 进入dist目录，打开命令行
 	```
-	//全局安装本地访问插件
-	npm install -g serve
-	//启动前端
-	npm run dev
+	# 启动简单 HTTP 服务器
+	python -m http.server 9528 --bind 0.0.0.0
 	```
+
+4. 浏览器访问 localhost:9528即可进入系统界面
