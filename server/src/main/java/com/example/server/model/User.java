@@ -1,20 +1,16 @@
 package com.example.server.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
-@TableName("sys_user")
+@TableName("users")
 public class User {
-    @TableId(type = IdType.AUTO)
-    private Long id;
-
+    @TableId // 表示name为主键
     @TableField(value = "username")
     private String username;
-
     @TableField(value = "password")
-    private String password;
+    private String password; // 存储加密后的哈希值
 }
