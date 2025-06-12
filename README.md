@@ -68,9 +68,9 @@
 
 1. 创建一个空文件夹，克隆仓库
 
-	```
+```
 git clone https://github.com/Mikeserde/edu-tutor-backend.git
-	```
+```
 
 2. 进入仓库目录，打开命令行启动后端
 
