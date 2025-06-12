@@ -59,7 +59,7 @@
 
       <div class="tips">
         <span style="margin-right: 20px">username: admin</span>
-        <span> password: any</span>
+        <span> password: 123456</span>
       </div>
     </el-form>
   </div>
@@ -88,7 +88,7 @@ export default {
     return {
       loginForm: {
         username: "admin",
-        password: "111111",
+        password: "123456",
       },
       loginRules: {
         username: [
@@ -125,7 +125,7 @@ export default {
     handleLogin() {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
-          console.log("提交的表单数据:", this.loginForm); // 添加这行
+          console.log("提交的表单数据:", this.loginForm);
           this.loading = true;
           this.$store
             .dispatch("user/login", this.loginForm)

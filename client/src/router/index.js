@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-
 Vue.use(Router)
 
 /* Layout */
@@ -57,7 +56,21 @@ export const constantRoutes = [
       }
     }]
   },
-
+  {
+    path: '/user',
+    component: Layout,
+    redirect: '/user/list',
+    name: 'UserManagement',
+    meta: { requireAdmin: true },
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/user/index'),
+        name: 'userList',
+        meta: { title: '用户管理', icon: 'el-icon-s-custom', requireAdmin: true }
+      }
+    ]
+  },
   {
     path: '/teachers',
     component: Layout, // 使用Layout作为父组件
@@ -197,7 +210,6 @@ const createRouter = () => new Router({
 })
 
 const router = createRouter()
-
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {
   const newRouter = createRouter()

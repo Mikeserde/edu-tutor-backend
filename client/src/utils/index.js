@@ -141,3 +141,19 @@ export function formatPhone(phone) {
   // 其他格式直接返回原值
   return phone;
 }
+
+/**
+ * 格式化日期
+ * @param {string} dateString 日期字符串
+ * @returns {string} 格式化后的日期
+ */
+export function formatDate(dateString) {
+  if (!dateString) return ''
+
+  const date = new Date(dateString)
+
+  // 补零函数
+  const pad = num => (num < 10 ? `0${num}` : num)
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
