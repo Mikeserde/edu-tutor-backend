@@ -1,12 +1,9 @@
-6.存储过程
-6.1 创建系统备份记录表
 CREATE TABLE BackupRecord (
     BackupId INT PRIMARY KEY AUTO_INCREMENT,
     BackupTime DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     Comment VARCHAR(255) COMMENT '备份说明'
 );
-6.2 创建基本表的备份记录表
-1 学生备份表（Student_Backup）
+
 CREATE TABLE Student_Backup (
     BackupRecordId INT NOT NULL,
     StudentId INT,
@@ -16,7 +13,7 @@ CREATE TABLE Student_Backup (
     ContactPhone VARCHAR(20),
     FOREIGN KEY (BackupRecordId) REFERENCES BackupRecord(BackupId) ON DELETE CASCADE
 );
-2 教师备份表（Teacher_Backup）
+
 CREATE TABLE Teacher_Backup (
     BackupRecordId INT NOT NULL,
     TeacherId INT,
@@ -26,14 +23,14 @@ CREATE TABLE Teacher_Backup (
     HourlyFee DECIMAL(10,2),
     FOREIGN KEY (BackupRecordId) REFERENCES BackupRecord(BackupId) ON DELETE CASCADE
 );
-3 职业类型备份表（OccupationType_Backup）
-`CREATE TABLE OccupationType_Backup (
+
+CREATE TABLE OccupationType_Backup (
     BackupRecordId INT NOT NULL,
     OccupationTypeId INT,
     Name VARCHAR(50),
     FOREIGN KEY (BackupRecordId) REFERENCES BackupRecord(BackupId) ON DELETE CASCADE
-);`
-4 职业登记备份表(OccupationRegistration_Backup)
+);
+
 CREATE TABLE OccupationRegistration_Backup (
     BackupRecordId INT NOT NULL,
     OccupationId INT,
@@ -41,7 +38,7 @@ CREATE TABLE OccupationRegistration_Backup (
     StudentId INT,
     FOREIGN KEY (BackupRecordId) REFERENCES BackupRecord(BackupId) ON DELETE CASCADE
 ); 
-5 职业作息备份表（OccupationSchedule_Backup）
+
 CREATE TABLE OccupationSchedule_Backup (
     BackupRecordId INT NOT NULL,
     ScheduleId INT,
@@ -52,7 +49,7 @@ CREATE TABLE OccupationSchedule_Backup (
     EndTime TIME,
     FOREIGN KEY (BackupRecordId) REFERENCES BackupRecord(BackupId) ON DELETE CASCADE
 );
-6 收费备份表（Payment_Backup）
+
 CREATE TABLE Payment_Backup (
     BackupRecordId INT NOT NULL,
     PaymentId INT,
@@ -61,9 +58,7 @@ CREATE TABLE Payment_Backup (
     Amount DECIMAL(10,2),
     FOREIGN KEY (BackupRecordId) REFERENCES BackupRecord(BackupId) ON DELETE CASCADE
 );
-6.3 创建备份/恢复存储过程
-1 创建备份存储过程
-存储过程的创建
+
 DELIMITER //
 CREATE PROCEDURE BackupDatabase(IN comment_text VARCHAR(255))
 BEGIN
@@ -95,10 +90,7 @@ BEGIN
     SELECT backup_id AS BackupId; -- 返回备份ID
 END //
 DELIMITER ;
-调用方法
-CALL BackupDatabase('具体备份事件的描述');
-2 创建恢复存储过程
-存储过程的创建
+
 DELIMITER //
 CREATE PROCEDURE RestoreDatabase(IN backup_id INT)
 BEGIN
@@ -152,7 +144,6 @@ BEGIN
 END //
 DELIMITER ;
 
--- 5创建查看备份记录存储过程 
 DELIMITER //
 CREATE PROCEDURE ListBackups()
 BEGIN
@@ -164,9 +155,7 @@ BEGIN
     ORDER BY BackupTime DESC;
 END //
 DELIMITER ;
-调用方法
-CALL RestoreDatabase(备份id); -- 使用备份ID
-3 创建清理存储过程
+
 DELIMITER //
 CREATE PROCEDURE CleanBackupData(IN keep_count INT, IN keep_days INT)
 BEGIN
@@ -218,8 +207,7 @@ BEGIN
         ) AS Result;
 END //
 DELIMITER ;
-4 创建备份记录的查看的存储过程
-存储过程的创建
+
 DELIMITER //
 CREATE PROCEDURE ListBackups()
 BEGIN
@@ -231,5 +219,3 @@ BEGIN
     ORDER BY BackupTime DESC;
 END //
 DELIMITER ;
-调用方法
-CALL ListBackups();
