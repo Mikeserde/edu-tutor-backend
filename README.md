@@ -406,15 +406,15 @@ CREATE TABLE Payment (
  ```mysql
  -- 插入职业登记后的触发器
  DELIMITER //
- CREATE TRIGGER AfterOccupationRegistrationInsert
- AFTER INSERT ON OccupationRegistration
- FOR EACH ROW
- BEGIN
-     -- 自动插入 Payment 记录
-     INSERT INTO Payment (OccupationId, PaymentDate, Amount)
-     VALUES (NEW.OccupationId, CURRENT_DATE(), 200.00);
- END //
- DELIMITER ;
+CREATE TRIGGER AfterOccupationRegistrationInsert
+AFTER INSERT ON OccupationRegistration
+FOR EACH ROW
+BEGIN
+    -- 自动插入 Payment 记录，日期加一天
+    INSERT INTO Payment (OccupationId, PaymentDate, Amount)
+    VALUES (NEW.OccupationId, DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY), 200.00);
+END //
+DELIMITER ;
  ```
 ----
 
@@ -527,15 +527,16 @@ CREATE PROCEDURE CalculateTeacherHours(
     IN end_date DATE
 )
 BEGIN
-	-- 校验日期顺序
+    -- 校验日期顺序
     IF start_date > end_date THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = '开始日期不能晚于结束日期';
     END IF;
-    SELECT 
+
+    SELECT
         os.TeacherId,
         t.Name AS TeacherName,
-        SUM(TIMESTAMPDIFF(HOUR, os.StartTime, os.EndTime)) AS TotalHours
+        ROUND(SUM(TIMESTAMPDIFF(MINUTE, os.StartTime, os.EndTime)) / 60, 2) AS TotalHours
     FROM OccupationSchedule os
     JOIN Teacher t ON os.TeacherId = t.TeacherId
     WHERE os.Date BETWEEN start_date AND end_date
