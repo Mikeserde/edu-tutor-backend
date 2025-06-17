@@ -207,15 +207,3 @@ BEGIN
         ) AS Result;
 END //
 DELIMITER ;
-
-DELIMITER //
-CREATE PROCEDURE ListBackups()
-BEGIN
-    SELECT 
-        BackupId, 
-        DATE_FORMAT(BackupTime, '%Y-%m-%d %H:%i:%s') AS BackupTime, 
-        Comment
-    FROM BackupRecord
-    ORDER BY BackupTime DESC;
-END //
-DELIMITER ;
