@@ -589,7 +589,7 @@ CALL CountOccupationDemand();
         - 按 OccupationTypeId 分组统计登记次数
         - 结果按需求次数降序排列
 
-## 6.存储过程
+## 6.系统备份、恢复和清理
 
 ### 6.1 创建系统备份记录表
 
@@ -888,32 +888,5 @@ DELIMITER ;
 
 ```mysql
 CALL ListBackups();
-```
-
-
-
-### 6.4 创建自动清理事件
-
-* 事件的创建
-
-```mysql
-SET GLOBAL event_scheduler = ON;
-
--- 创建每15天自动清理事件
-DELIMITER //
-CREATE EVENT AutoCleanBackupData
-ON SCHEDULE EVERY 15 DAY STARTS CURRENT_TIMESTAMP + INTERVAL 1 DAY
-DO
-BEGIN
-    -- 保留最近100次备份（不限制天数）
-    CALL CleanBackupData(100, 0);
-END //
-DELIMITER ;
-```
-
-* 事件的查看方法
-
-```mysql
-SHOW CREATE EVENT AutoCleanBackupData;
 ```
 
