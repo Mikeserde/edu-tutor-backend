@@ -123,8 +123,8 @@ CREATE TRIGGER AfterOccupationRegistrationInsert
 AFTER INSERT ON OccupationRegistration
 FOR EACH ROW
 BEGIN
-    -- 自动插入 Payment 记录
+    -- 自动插入 Payment 记录，日期加一天
     INSERT INTO Payment (OccupationId, PaymentDate, Amount)
-    VALUES (NEW.OccupationId, CURRENT_DATE(), 200.00);
+    VALUES (NEW.OccupationId, DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY), 200.00);
 END //
 DELIMITER ;
