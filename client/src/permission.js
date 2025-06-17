@@ -55,6 +55,17 @@ router.beforeEach(async (to, from, next) => {
       next(`/login?redirect=${to.path}`)
       NProgress.done()
     }
+
+    const isAdmin = store.getters.roles?.includes('admin') ||
+      store.state.user?.name === 'admin'
+
+    if (to.matched.some(record => record.meta.requireAdmin)) {
+      if (!isAdmin) {
+        next('/') // 重定向首页
+        return
+      }
+    }
+    next()
   }
 
   const isAdmin = store.getters.roles?.includes('admin') ||

@@ -56,6 +56,8 @@ export const constantRoutes = [
       }
     }]
   },
+
+
   {
     path: '/user',
     component: Layout,
@@ -71,6 +73,23 @@ export const constantRoutes = [
       }
     ]
   },
+
+  {
+    path: '/database',
+    component: Layout,
+    redirect: '/database/management',
+    name: 'DatabaseTools',
+    meta: { title: '数据库管理', icon: 'el-icon-setting', requireAdmin: true },
+    children: [
+      {
+        path: 'management',
+        component: () => import('@/views/database/DatabaseManagement.vue'),
+        name: 'DatabaseManagement',
+        meta: { title: '备份与恢复', requireAdmin: true }
+      }
+    ]
+  },
+
   {
     path: '/teachers',
     component: Layout, // 使用Layout作为父组件
@@ -199,6 +218,16 @@ export const constantRoutes = [
       }
     ]
   },
+
+  // 删除或注释掉以下重复路由
+  // {
+  //   path: '/database-management',
+  //   name: 'DatabaseManagement',
+  //   component: () => import('@/views/database/DatabaseManagement.vue'),
+  //   meta: { title: '数据库管理' }
+  // },
+
+
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
