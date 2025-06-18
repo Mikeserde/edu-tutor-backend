@@ -353,7 +353,6 @@ export default {
           }
         })
         .catch((error) => {
-          console.error("创建排班失败:", error);
           this.$message.error("创建失败: " + (error.message || "请稍后重试"));
           this.dialogSubmitting = false; // 重置提交状态
         });
@@ -385,7 +384,6 @@ export default {
           }
         })
         .catch((error) => {
-          console.error("更新排班失败:", error);
           this.$message.error("更新失败: " + (error.message || "请稍后重试"));
           this.dialogSubmitting = false; // 重置提交状态
         });

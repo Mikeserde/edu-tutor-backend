@@ -99,7 +99,13 @@ export default {
         ],
         phone: [
           { required: true, message: "请输入联系电话", trigger: "blur" },
-          { max: 20, message: "电话不能超过20个字符", trigger: "blur" },
+          { max: 20, message: "联系电话不能超过20个字符", trigger: "blur" },
+          // 简单的电话格式验证 (支持固话和手机)
+          {
+            pattern: /^1\d{10}$|^0\d{2,3}-?\d{7,8}$/,
+            message: "请输入有效的联系电话",
+            trigger: "blur",
+          },
         ],
         hourlyFee: [
           {
